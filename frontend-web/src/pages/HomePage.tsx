@@ -3,19 +3,13 @@ import { fetchGamesByDate } from '../services/api';
 import {
   Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Grid,
   Button,
   Box,
   Card,
   CardContent,
   CardMedia,
-  Grid,
+  Pagination,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,6 +26,8 @@ interface Game {
 const HomePage: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const gamesPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +48,14 @@ const HomePage: React.FC = () => {
 
     loadGames();
   }, []);
+
+  const indexOfLastGame = currentPage * gamesPerPage;
+  const indexOfFirstGame = indexOfLastGame - gamesPerPage;
+  const currentGames = games.slice(indexOfFirstGame, indexOfLastGame);
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
 
   const sortAscending = () => {
     const sortedGames = [...games].sort((a, b) => {
@@ -90,52 +94,62 @@ const HomePage: React.FC = () => {
       </Box>
       {error && <Typography color="error">{error}</Typography>}
       {!error && games.length > 0 ? (
-        <Grid container spacing={3}>
-          {games.map((game) => (
-            <Grid item xs={12} sm={6} md={4} key={game.id}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={
-                    game.cover
-                      ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
-                      : 'https://via.placeholder.com/200x280?text=No+Image'
-                  }
-                  alt={game.name}
-                />
-                <CardContent>
-                  <Typography variant="h6">{game.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {new Date(game.release_dates[0]?.date * 1000).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Plataformas: {game.platforms.map((platform) => platform.name).join(', ')}
-                  </Typography>
-                  {game.genres && (
+        <>
+          <Grid container spacing={3}>
+            {currentGames.map((game) => (
+              <Grid item xs={12} sm={6} md={4} key={game.id}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={
+                      game.cover
+                        ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
+                        : 'https://via.placeholder.com/200x280?text=No+Image'
+                    }
+                    alt={game.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h6">{game.name}</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Géneros: {game.genres.map((genre) => genre.name).join(', ')}
+                      {new Date(game.release_dates[0]?.date * 1000).toLocaleDateString()}
                     </Typography>
-                  )}
-                  {game.summary && (
-                    <Typography variant="body2" sx={{ marginTop: '0.5rem' }}>
-                      {game.summary.slice(0, 100)}...
+                    <Typography variant="body2" color="text.secondary">
+                      Plataformas: {game.platforms.map((platform) => platform.name).join(', ')}
                     </Typography>
-                  )}
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="primary"
-                    onClick={() => handleGameDetails(game.id)}
-                    sx={{ marginTop: '0.5rem' }}
-                  >
-                    Ver Detalles
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    {game.genres && (
+                      <Typography variant="body2" color="text.secondary">
+                        Géneros: {game.genres.map((genre) => genre.name).join(', ')}
+                      </Typography>
+                    )}
+                    {game.summary && (
+                      <Typography variant="body2" sx={{ marginTop: '0.5rem' }}>
+                        {game.summary.slice(0, 100)}...
+                      </Typography>
+                    )}
+                    <Button
+                      variant="contained"
+                      size="small"
+                      color="primary"
+                      onClick={() => handleGameDetails(game.id)}
+                      sx={{ marginTop: '0.5rem' }}
+                    >
+                      Ver Detalles
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+            <Pagination
+              count={Math.ceil(games.length / gamesPerPage)}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Box>
+        </>
       ) : (
         <Typography>No se encontraron juegos para esta fecha.</Typography>
       )}

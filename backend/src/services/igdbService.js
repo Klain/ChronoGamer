@@ -45,7 +45,7 @@ async function fetchWithRetry(url, data, headers, maxRetries = 5) {
   throw new Error('Número máximo de reintentos excedido');
 }
 
-// Obtener juegos por fecha con el endpoint "games"
+// Obtener juegos por fecha iterando entre años
 async function fetchGamesByDate(date) {
   if (cache[date]) {
     console.log(`Sirviendo datos desde caché para la fecha: ${date}`);
@@ -54,38 +54,48 @@ async function fetchGamesByDate(date) {
 
   const token = await getAccessToken();
   const selectedDate = new Date(date);
-  const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Mes actual
-  const day = String(selectedDate.getDate()).padStart(2, '0'); // Día actual
+  const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Mes actual (1-12)
+  const day = String(selectedDate.getDate()).padStart(2, '0'); // Día actual (1-31)
+  const currentYear = selectedDate.getFullYear();
+  const startYear = 1980;
+  const results = [];
 
-  try {
-    console.log(`Consultando juegos para la fecha: ${day}-${month}`);
+  // Iterar desde 1980 hasta el año actual
+  for (let year = startYear; year <= currentYear; year++) {
+    // Crear la fecha para este año
+    const dateForYear = `${year}-${month}-${day}`;
+    const timestamp = new Date(dateForYear).getTime() / 1000; // Convertir a timestamp Unix
 
-    // Consulta al endpoint "games"
-    const response = await fetchWithRetry(
-      'https://api.igdb.com/v4/games',
-      `fields id, name, genres.name, platforms.name, cover.url, release_dates.human, release_dates.date, summary; 
-       where release_dates.human ~ *"${month}-${day}"*;`,
-      {
-        'Client-ID': process.env.TWITCH_CLIENT_ID,
-        Authorization: `Bearer ${token}`,
+    try {
+      console.log(`Consultando juegos para la fecha: ${dateForYear} (timestamp: ${timestamp})`);
+      const response = await fetchWithRetry(
+        'https://api.igdb.com/v4/games',
+        `fields id, name, genres.name, platforms.name, cover.url, release_dates.date, summary; 
+         where release_dates.date = ${timestamp};`,
+        {
+          'Client-ID': process.env.TWITCH_CLIENT_ID,
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      if (response.data.length > 0) {
+        console.log(`Juegos encontrados para ${year}:`, response.data.length);
+        results.push(...response.data);
+      } else {
+        console.log(`No se encontraron juegos para ${dateForYear}`);
       }
-    );
-
-    const games = response.data;
-
-    if (games.length === 0) {
-      console.log('No se encontraron juegos para la fecha proporcionada.');
-      cache[date] = [];
-      return [];
+    } catch (error) {
+      console.error(`Error consultando juegos para ${year}:`, error.message);
     }
 
-    console.log(`Juegos encontrados: ${games.length}`);
-    cache[date] = games; // Cachear resultados
-    return games;
-  } catch (error) {
-    console.error('Error al consultar el endpoint "games":', error.message);
-    return [];
+    // Respetar el límite de 4 solicitudes por segundo
+    await sleep(500);
   }
+
+  // Cachear resultados
+  cache[date] = results;
+  console.log(`Resultados acumulados: ${results.length} juegos`);
+  return results;
 }
 
 // Obtener detalles de un juego específico

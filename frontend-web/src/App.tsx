@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import GameDetailsPage from './pages/GameDetailsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -19,12 +20,21 @@ const App: React.FC = () => {
     <Router>
       <Navbar />
       <Routes>
+        {/* Ruta pública */}
         <Route path="/" element={<LandingPage />} />
         <Route
           path="/home"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:id"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <GameDetailsPage />
             </ProtectedRoute>
           }
         />

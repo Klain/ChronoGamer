@@ -1,29 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchGameDetails } from '../services/api';
-
-interface GameDetails {
-  id: number;
-  name: string;
-  description: string;
-  release_date: string;
-  genres: string[];
-  platforms: string[];
-  screenshots: string[];
-}
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+} from '@mui/material';
 
 const GameDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [game, setGame] = useState<GameDetails | null>(null);
+  const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadGameDetails = async () => {
       try {
-        const response = await fetchGameDetails(Number(id));
-        setGame(response.data);
-      } catch (err: any) {
-        setError('Error al cargar los detalles del juego');
+        const gameData = await fetchGameDetails(Number(id));
+        setGame(gameData);
+      } catch (err) {
+        setError('Error al cargar los detalles del juego.');
       }
     };
 
@@ -31,27 +29,46 @@ const GameDetailsPage: React.FC = () => {
   }, [id]);
 
   if (error) {
-    return <p>{error}</p>;
+    return <Typography color="error">{error}</Typography>;
   }
 
   if (!game) {
-    return <p>Cargando...</p>;
+    return <Typography>Cargando detalles del juego...</Typography>;
   }
 
   return (
-    <div>
-      <h1>{game.name}</h1>
-      <p>{game.description}</p>
-      <p>Fecha de lanzamiento: {game.release_date}</p>
-      <p>Géneros: {game.genres.join(', ')}</p>
-      <p>Plataformas: {game.platforms.join(', ')}</p>
-      <div>
-        <h2>Imágenes</h2>
-        {game.screenshots.map((url, index) => (
-          <img key={index} src={url} alt={`${game.name} screenshot ${index}`} />
-        ))}
-      </div>
-    </div>
+    <Container sx={{ marginTop: '2rem' }}>
+      <Card>
+        <CardMedia
+          component="img"
+          height="300"
+          image={
+            game.cover
+              ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
+              : 'https://via.placeholder.com/300x400?text=No+Image'
+          }
+          alt={game.name}
+        />
+        <CardContent>
+          <Typography variant="h4">{game.name}</Typography>
+          {game.summary && (
+            <Typography variant="body1" sx={{ marginTop: '1rem' }}>
+              {game.summary}
+            </Typography>
+          )}
+          {game.genres && (
+            <Typography variant="body2" sx={{ marginTop: '1rem' }}>
+              Géneros: {game.genres.map((genre: any) => genre.name).join(', ')}
+            </Typography>
+          )}
+          {game.platforms && (
+            <Typography variant="body2" sx={{ marginTop: '1rem' }}>
+              Plataformas: {game.platforms.map((platform: any) => platform.name).join(', ')}
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

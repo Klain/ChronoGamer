@@ -96,10 +96,10 @@ const HomePage: React.FC = () => {
               <Card>
                 <CardMedia
                   component="img"
-                  height="140"
+                  height="200"
                   image={
                     game.cover
-                      ? `https:${game.cover.url}`
+                      ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
                       : 'https://via.placeholder.com/200x280?text=No+Image'
                   }
                   alt={game.name}

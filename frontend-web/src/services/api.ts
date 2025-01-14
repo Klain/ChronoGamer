@@ -4,6 +4,7 @@ import { Game } from '../models/game';
 
 
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+console.log('Base URL:', baseURL);
 
 const api = axios.create({
   baseURL,
@@ -26,10 +27,10 @@ export const registerUser = (username: string, password: string) =>
 export const loginUser = (username: string, password: string) =>
   api.post('/api/auth/login', { username, password });
 
-  export const fetchGamesByDate = async (date: string): Promise<Game[]> => {
-    const response = await axios.get(`/api/games?date=${date}`);
-    return response.data;
-  };
+export const fetchGamesByDate = async (date: string): Promise<Game[]> => {
+  const response = await api.get(`/api/games?date=${date}`);
+  return response.data;
+};
 
 export const fetchGameDetails = (id: number) =>
   api.get(`/api/games/${id}`);

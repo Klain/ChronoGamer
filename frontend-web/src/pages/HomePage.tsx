@@ -1,5 +1,4 @@
 //src\pages\HomePage.tsx
-
 import React, { useEffect, useState } from 'react';
 import LoadingScreen from '../components/LoadingScreen';
 import { fetchGamesByDate } from '../services/api';
@@ -46,19 +45,21 @@ const HomePage: React.FC = () => {
       try {
         const today = new Date().toISOString().split('T')[0];
         const games = await fetchGamesByDate(today);
-        if (games.length === 0) {
-          setError('No se encontraron juegos para esta fecha.');
-        } else {
+        if (Array.isArray(games) && games.length > 0) {
           setGames(games);
           setFilteredGames(games);
+        } else {
+          setError('No se encontraron juegos para esta fecha.');
+          setFilteredGames([]);
         }
       } catch (err) {
         setError('Error al cargar los juegos. Intenta más tarde.');
+        setFilteredGames([]);
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     loadGames();
   }, []);
 
@@ -98,7 +99,9 @@ const HomePage: React.FC = () => {
 
   const indexOfLastGame = currentPage * gamesPerPage;
   const indexOfFirstGame = indexOfLastGame - gamesPerPage;
-  const currentGames = filteredGames.slice(indexOfFirstGame, indexOfLastGame);
+  const currentGames = Array.isArray(filteredGames)
+    ? filteredGames.slice(indexOfFirstGame, indexOfLastGame)
+    : [];
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -108,7 +111,7 @@ const HomePage: React.FC = () => {
     return (
       <LoadingScreen
         message="Cargando los mejores juegos de la historia..."
-        adImage="https://via.placeholder.com/300x200.png?text=Publicidad"
+        adImage="https://dummyimage.com/300x200/000/fff&text=Publicidad"
       />
     );
   }
@@ -129,7 +132,7 @@ const HomePage: React.FC = () => {
         </FormControl>
       </Box>
       {error && <Typography color="error">{error}</Typography>}
-      {!error && filteredGames.length > 0 ? (
+      {!error && currentGames.length > 0 ? (
         <>
           <Grid container spacing={3}>
             {currentGames.map((game) => (

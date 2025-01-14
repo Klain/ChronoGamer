@@ -21,14 +21,12 @@ async function getAccessToken() {
 async function fetchGamesByDate(date) {
   const token = await getAccessToken();
 
-  // Extraemos el mes y el día del parámetro `date`
   const selectedDate = new Date(date);
-  const month = selectedDate.getMonth() + 1; // Mes (1-indexado)
-  const day = selectedDate.getDate(); // Día del mes
+  const month = selectedDate.getMonth() + 1; 
+  const day = selectedDate.getDate(); 
 
-  const years = Array.from({ length: 43 }, (_, i) => i + 1980); // Rango de años 1980-2023
+  const years = Array.from({ length: 43 }, (_, i) => i + 1980); 
 
-  // Hacemos múltiples peticiones para cada año
   const requests = years.map((year) =>
     axios.post(
       'https://api.igdb.com/v4/release_dates',
@@ -43,7 +41,6 @@ async function fetchGamesByDate(date) {
     )
   );
 
-  // Ejecutamos todas las peticiones en paralelo
   const results = await Promise.allSettled(requests);
 
   // Filtramos y mapeamos los resultados exitosos
@@ -52,10 +49,8 @@ async function fetchGamesByDate(date) {
     .map((result) => result.value.data)
     .flat();
 
-  // Extraemos los IDs únicos de los juegos
   const gameIds = [...new Set(gamesByYear.map((release) => release.game))];
 
-  // Obtenemos información adicional de los juegos
   const gamesResponse = await axios.post(
     'https://api.igdb.com/v4/games',
     `fields name, genres.name, platforms.name, cover.url; where id = (${gameIds.join(',')});`,

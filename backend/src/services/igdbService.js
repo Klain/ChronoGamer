@@ -2,14 +2,10 @@ const axios = require('axios');
 require('dotenv').config();
 
 let accessToken = null;
-
-// Caché en memoria para almacenar resultados diarios
 const cache = {};
-
-// Pausa para respetar límites de tasa
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Obtener token de acceso de Twitch
+// Obtener token de acceso
 async function getAccessToken() {
   if (!accessToken) {
     const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -49,9 +45,8 @@ async function fetchWithRetry(url, data, headers, maxRetries = 5) {
   throw new Error('Número máximo de reintentos excedido');
 }
 
-// Obtener juegos por fecha
+// Obtener juegos por fecha con el endpoint "games"
 async function fetchGamesByDate(date) {
-  // Verificar si los datos ya están en caché
   if (cache[date]) {
     console.log(`Sirviendo datos desde caché para la fecha: ${date}`);
     return cache[date];
@@ -59,64 +54,36 @@ async function fetchGamesByDate(date) {
 
   const token = await getAccessToken();
   const selectedDate = new Date(date);
-  const month = selectedDate.getMonth() + 1;
-  const day = selectedDate.getDate();
-  const currentYear = selectedDate.getFullYear();
-  const startYear = 1980;
-  const results = [];
+  const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Mes actual
+  const day = String(selectedDate.getDate()).padStart(2, '0'); // Día actual
 
-  // Consultar lanzamientos para cada año
-  for (let year = startYear; year <= currentYear; year++) {
-    try {
-      console.log(`Consultando juegos para: ${year}-${month}-${day}`);
-      const response = await fetchWithRetry(
-        'https://api.igdb.com/v4/release_dates',
-        `fields game, date, human, platform, region; 
-         where human = "${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}";`,
-        {
-          'Client-ID': process.env.TWITCH_CLIENT_ID,
-          Authorization: `Bearer ${token}`,
-        }
-      );
-
-      if (response.data.length > 0) {
-        console.log(`Juegos encontrados para ${year}: ${response.data.length}`);
-        results.push(...response.data);
-      } else {
-        console.log(`No se encontraron juegos para ${year}-${month}-${day}`);
-      }
-    } catch (error) {
-      console.error(`Error consultando juegos para ${year}:`, error.message);
-    }
-
-    // Respetar el límite de 2 solicitudes por segundo
-    await sleep(500);
-  }
-
-  // Obtener IDs únicos de juegos
-  const gameIds = [...new Set(results.map((release) => release.game))];
-  if (gameIds.length === 0) {
-    console.log('No se encontraron juegos para la fecha proporcionada.');
-    cache[date] = []; // Cachear resultado vacío
-    return [];
-  }
-
-  // Obtener detalles de los juegos
   try {
-    const gamesResponse = await fetchWithRetry(
+    console.log(`Consultando juegos para la fecha: ${day}-${month}`);
+
+    // Consulta al endpoint "games"
+    const response = await fetchWithRetry(
       'https://api.igdb.com/v4/games',
-      `fields id, name, genres.name, platforms.name, cover.url, summary; 
-       where id = (${gameIds.join(',')});`,
+      `fields id, name, genres.name, platforms.name, cover.url, release_dates.human, release_dates.date, summary; 
+       where release_dates.human ~ *"${month}-${day}"*;`,
       {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
         Authorization: `Bearer ${token}`,
       }
     );
-    console.log(`Detalles obtenidos para la fecha ${date}: ${gamesResponse.data.length} juegos`);
-    cache[date] = gamesResponse.data; // Cachear resultados finales
-    return gamesResponse.data;
+
+    const games = response.data;
+
+    if (games.length === 0) {
+      console.log('No se encontraron juegos para la fecha proporcionada.');
+      cache[date] = [];
+      return [];
+    }
+
+    console.log(`Juegos encontrados: ${games.length}`);
+    cache[date] = games; // Cachear resultados
+    return games;
   } catch (error) {
-    console.error('Error al obtener detalles de los juegos:', error.message);
+    console.error('Error al consultar el endpoint "games":', error.message);
     return [];
   }
 }

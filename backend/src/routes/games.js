@@ -1,3 +1,5 @@
+//src\routes\games.js
+
 const express = require('express');
 const authenticateToken = require('../middleware/auth');
 const igdbService = require('../services/igdbService');

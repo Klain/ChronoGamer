@@ -1,3 +1,4 @@
+//src\pages\LandingPage.tsx
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Typography, Button, Box } from '@mui/material';

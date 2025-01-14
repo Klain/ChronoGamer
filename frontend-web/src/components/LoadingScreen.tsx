@@ -1,3 +1,5 @@
+//src\components\LoadingScreen.tsx
+
 import React, { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, LinearProgress } from '@mui/material';
 

@@ -1,3 +1,4 @@
+//src\services\igdbService.js
 const axios = require('axios');
 require('dotenv').config();
 
@@ -19,10 +20,14 @@ async function getAccessToken() {
 
 async function fetchGamesByDate(date) {
   const token = await getAccessToken();
-  const timestamp = new Date(date).getTime() / 1000; // Convertir a timestamp Unix
+  
+  const startOfDay = Math.floor(new Date(date).setHours(0, 0, 0, 0) / 1000);
+  const endOfDay = Math.floor(new Date(date).setHours(23, 59, 59, 999) / 1000);
+
   const response = await axios.post(
     'https://api.igdb.com/v4/games',
-    `fields name, release_dates.date, platforms.name; where release_dates.date = ${timestamp};`,
+    `fields name, release_dates.date, platforms.name, genres.name, cover.url; 
+     where release_dates.date >= ${startOfDay} & release_dates.date <= ${endOfDay};`,
     {
       headers: {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -35,9 +40,10 @@ async function fetchGamesByDate(date) {
 
 async function fetchGameDetails(id) {
   const token = await getAccessToken();
+
   const response = await axios.post(
     'https://api.igdb.com/v4/games',
-    `fields name, summary, genres.name, platforms.name, screenshots.url; where id = ${id};`,
+    `fields name, summary, genres.name, platforms.name, screenshots.url, cover.url; where id = ${id};`,
     {
       headers: {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -45,7 +51,8 @@ async function fetchGameDetails(id) {
       },
     }
   );
-  return response.data[0]; // Devuelve solo el primer resultado
+  return response.data[0];
 }
 
 module.exports = { fetchGamesByDate, fetchGameDetails };
+

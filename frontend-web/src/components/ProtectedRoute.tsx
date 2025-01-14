@@ -1,5 +1,4 @@
-//src\components\ProtectedRoute.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -8,7 +7,20 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated, children }) => {
-  return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
+  const [loading, setLoading] = useState(true);
+  const [authStatus, setAuthStatus] = useState(isAuthenticated);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setAuthStatus(!!token);
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
+  return authStatus ? <>{children}</> : <Navigate to="/" />;
 };
 
 export default ProtectedRoute;

@@ -1,7 +1,7 @@
 //src\components\LoadingScreen.tsx
 
 import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, LinearProgress } from '@mui/material';
+import { Box, Typography, LinearProgress } from '@mui/material';
 
 const LoadingScreen: React.FC<{ message?: string; adImage?: string }> = ({ message, adImage }) => {
   const [progress, setProgress] = useState(0);

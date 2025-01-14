@@ -8,7 +8,7 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/home'); // Redirige a la página principal de usuario
+      navigate('/home');
     }
   }, [navigate]);
 

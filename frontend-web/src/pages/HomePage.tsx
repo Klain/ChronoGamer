@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import LoadingScreen from '../components/LoadingScreen';
 import { fetchGamesByDate } from '../services/api';
 import {
   Container,
   Typography,
   Grid,
-  Button,
   Box,
   Card,
   CardContent,
   CardMedia,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
   Pagination,
+  Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { SelectChangeEvent } from '@mui/material';
 
 interface Game {
   id: number;
@@ -25,8 +31,11 @@ interface Game {
 
 const HomePage: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
+  const [filteredGames, setFilteredGames] = useState<Game[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOption, setSortOption] = useState<string>('year');
   const gamesPerPage = 10;
   const navigate = useNavigate();
 
@@ -34,66 +43,87 @@ const HomePage: React.FC = () => {
     const loadGames = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const response = await fetchGamesByDate(today);
-        const sortedGames = response.data.sort((a: Game, b: Game) => {
-          const dateA = a.release_dates[0]?.date || 0;
-          const dateB = b.release_dates[0]?.date || 0;
-          return dateA - dateB;
-        });
-        setGames(sortedGames);
+        const games = await fetchGamesByDate(today);
+        setGames(games);
+        setFilteredGames(games);
       } catch (err: any) {
         setError('Error al cargar los juegos.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadGames();
   }, []);
 
+  const handleGameDetails = (id: number) => {
+    navigate(`/game/${id}`);
+  };
+
+  const sortGames = (option: string) => {
+    let sortedGames = [...games];
+    if (option === 'year') {
+      sortedGames.sort((a, b) => {
+        const dateA = a.release_dates[0]?.date || 0;
+        const dateB = b.release_dates[0]?.date || 0;
+        return dateA - dateB;
+      });
+    } else if (option === 'genre') {
+      sortedGames.sort((a, b) => {
+        const genreA = a.genres?.[0]?.name || '';
+        const genreB = b.genres?.[0]?.name || '';
+        return genreA.localeCompare(genreB);
+      });
+    } else if (option === 'platform') {
+      sortedGames.sort((a, b) => {
+        const platformA = a.platforms?.[0]?.name || '';
+        const platformB = b.platforms?.[0]?.name || '';
+        return platformA.localeCompare(platformB);
+      });
+    }
+    setFilteredGames(sortedGames);
+  };
+
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    const value = event.target.value;
+    setSortOption(value);
+    sortGames(value);
+  };
+
   const indexOfLastGame = currentPage * gamesPerPage;
   const indexOfFirstGame = indexOfLastGame - gamesPerPage;
-  const currentGames = games.slice(indexOfFirstGame, indexOfLastGame);
+  const currentGames = filteredGames.slice(indexOfFirstGame, indexOfLastGame);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
 
-  const sortAscending = () => {
-    const sortedGames = [...games].sort((a, b) => {
-      const dateA = a.release_dates[0]?.date || 0;
-      const dateB = b.release_dates[0]?.date || 0;
-      return dateA - dateB;
-    });
-    setGames(sortedGames);
-  };
-
-  const sortDescending = () => {
-    const sortedGames = [...games].sort((a, b) => {
-      const dateA = a.release_dates[0]?.date || 0;
-      const dateB = b.release_dates[0]?.date || 0;
-      return dateB - dateA;
-    });
-    setGames(sortedGames);
-  };
-
-  const handleGameDetails = (id: number) => {
-    navigate(`/game/${id}`);
-  };
+  if (isLoading) {
+    return (
+      <LoadingScreen
+        message="Cargando los mejores juegos de la historia..."
+        adImage="https://via.placeholder.com/300x200.png?text=Publicidad"
+      />
+    );
+  }
 
   return (
     <Container sx={{ marginTop: '2rem' }}>
       <Typography variant="h4" gutterBottom>
         Tal día como hoy se estrenaron los siguientes juegos históricos
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <Button variant="contained" color="primary" onClick={sortAscending}>
-          Ordenar por Año (Ascendente)
-        </Button>
-        <Button variant="outlined" color="primary" onClick={sortDescending}>
-          Ordenar por Año (Descendente)
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+          <InputLabel>Ordenar Por</InputLabel>
+          <Select value={sortOption} onChange={handleSortChange} label="Ordenar Por">
+            <MenuItem value="year">Año</MenuItem>
+            <MenuItem value="genre">Género</MenuItem>
+            <MenuItem value="platform">Plataforma</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
       {error && <Typography color="error">{error}</Typography>}
-      {!error && games.length > 0 ? (
+      {!error && filteredGames.length > 0 ? (
         <>
           <Grid container spacing={3}>
             {currentGames.map((game) => (
@@ -143,7 +173,7 @@ const HomePage: React.FC = () => {
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
             <Pagination
-              count={Math.ceil(games.length / gamesPerPage)}
+              count={Math.ceil(filteredGames.length / gamesPerPage)}
               page={currentPage}
               onChange={handlePageChange}
               color="primary"

@@ -4,7 +4,6 @@ import { Game } from '../models/game';
 
 
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-console.log('Base URL:', baseURL);
 
 const api = axios.create({
   baseURL,

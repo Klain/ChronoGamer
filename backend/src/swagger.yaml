@@ -23,6 +23,15 @@ paths:
       responses:
         201:
           description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
         400:
           description: El nombre de usuario ya existe
         500:
@@ -64,13 +73,7 @@ paths:
         - name: date
           in: query
           required: false
-          description: Fecha de lanzamiento en formato YYYY-MM-DD
-          schema:
-            type: string
-        - name: genre
-          in: query
-          required: false
-          description: Filtro por género de juego
+          description: Fecha de lanzamiento en formato YYYY-MM-DD. Por defecto, se utiliza la fecha actual.
           schema:
             type: string
       responses:
@@ -85,14 +88,18 @@ paths:
                   properties:
                     id:
                       type: integer
+                      example: 1234
                     name:
                       type: string
+                      example: Chrono Trigger
                     release_date:
                       type: string
-                    genres:
+                      example: 1995-03-11
+                    platforms:
                       type: array
                       items:
                         type: string
+                        example: Super Nintendo
         500:
           description: Error del servidor
   /api/games/{id}:
@@ -102,9 +109,10 @@ paths:
         - name: id
           in: path
           required: true
-          description: ID del juego
+          description: ID del juego en la base de datos de IGDB
           schema:
             type: integer
+            example: 1234
       responses:
         200:
           description: Detalles del juego obtenidos
@@ -115,51 +123,32 @@ paths:
                 properties:
                   id:
                     type: integer
+                    example: 1234
                   name:
                     type: string
+                    example: Chrono Trigger
                   description:
                     type: string
+                    example: "Un juego de rol épico lanzado en 1995."
                   release_date:
                     type: string
+                    example: 1995-03-11
                   genres:
                     type: array
                     items:
                       type: string
+                      example: RPG
+                  platforms:
+                    type: array
+                    items:
+                      type: string
+                      example: Super Nintendo
+                  screenshots:
+                    type: array
+                    items:
+                      type: string
+                      example: "https://example.com/screenshot.jpg"
         404:
           description: Juego no encontrado
-        500:
-          description: Error del servidor
-  /api/dates:
-    get:
-      summary: Obtiene juegos lanzados en una fecha específica
-      parameters:
-        - name: date
-          in: query
-          required: true
-          description: Fecha en formato YYYY-MM-DD
-          schema:
-            type: string
-      responses:
-        200:
-          description: Juegos obtenidos por fecha
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    release_date:
-                      type: string
-                    genres:
-                      type: array
-                      items:
-                        type: string
-        404:
-          description: No se encontraron juegos para la fecha
         500:
           description: Error del servidor

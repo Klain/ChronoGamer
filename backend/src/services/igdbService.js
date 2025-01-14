@@ -5,6 +5,9 @@ require('dotenv').config();
 
 let accessToken = null;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+
 async function getAccessToken() {
   if (!accessToken) {
     const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -23,16 +26,15 @@ async function fetchGamesByDate(date) {
   const token = await getAccessToken();
 
   const selectedDate = new Date(date);
-  const month = selectedDate.getMonth() + 1; 
-  const day = selectedDate.getDate(); 
-
+  const month = selectedDate.getMonth() + 1;
+  const day = selectedDate.getDate();
   const currentYear = selectedDate.getFullYear();
-  const startYear = 1980; 
-  const results = []; 
+  const startYear = 1980;
+  const results = [];
 
   for (let year = startYear; year <= currentYear; year++) {
     try {
-      // Hacemos la consulta para cada año
+      console.log(`Fetching games for ${year}-${month}-${day}`);
       const response = await axios.post(
         'https://api.igdb.com/v4/release_dates',
         `fields game, date, human, platform, region; 
@@ -44,32 +46,36 @@ async function fetchGamesByDate(date) {
           },
         }
       );
-
       results.push(...response.data);
+      console.log(`Data for year ${year}:`, response.data);
     } catch (error) {
       console.error(`Error fetching data for year ${year}:`, error.message);
     }
+
+    // Respeta el límite de 4 peticiones por segundo
+    await sleep(250);
   }
 
   const gameIds = [...new Set(results.map((release) => release.game))];
+  if (gameIds.length === 0) return [];
 
-  if (gameIds.length === 0) {
-    return []; 
+  try {
+    const gamesResponse = await axios.post(
+      'https://api.igdb.com/v4/games',
+      `fields id, name, genres.name, platforms.name, cover.url, summary; 
+       where id = (${gameIds.join(',')});`,
+      {
+        headers: {
+          'Client-ID': process.env.TWITCH_CLIENT_ID,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return gamesResponse.data;
+  } catch (error) {
+    console.error('Error fetching game details:', error.message);
+    return [];
   }
-
-  const gamesResponse = await axios.post(
-    'https://api.igdb.com/v4/games',
-    `fields id, name, genres.name, platforms.name, cover.url, summary; 
-     where id = (${gameIds.join(',')});`,
-    {
-      headers: {
-        'Client-ID': process.env.TWITCH_CLIENT_ID,
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return gamesResponse.data;
 }
 
 async function fetchGameDetails(id) {

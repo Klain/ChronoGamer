@@ -46,15 +46,19 @@ const HomePage: React.FC = () => {
       try {
         const today = new Date().toISOString().split('T')[0];
         const games = await fetchGamesByDate(today);
-        setGames(games);
-        setFilteredGames(games);
-      } catch (err: any) {
-        setError('Error al cargar los juegos.');
+        if (games.length === 0) {
+          setError('No se encontraron juegos para esta fecha.');
+        } else {
+          setGames(games);
+          setFilteredGames(games);
+        }
+      } catch (err) {
+        setError('Error al cargar los juegos. Intenta más tarde.');
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     loadGames();
   }, []);
 

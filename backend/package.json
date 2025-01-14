@@ -1,0 +1,39 @@
+{
+  "name": "chronogamer-api",
+  "version": "1.0.0",
+  "description": "ChronoGamer Backend: API para la gestión de usuarios y videojuegos con integración de IGDB",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.7",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klain/ChronoGamer.git"
+  },
+  "keywords": ["chronogamer", "backend", "nodejs", "api", "videojuegos"],
+  "author": "David Lafuente",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Klain/ChronoGamer/issues"
+  },
+  "homepage": "https://github.com/Klain/ChronoGamer#readme"
+}

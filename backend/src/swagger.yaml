@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: ChronoGamer API
+  version: 1.0.0
+  description: API para la gestión de usuarios y videojuegos con autenticación JWT
+paths:
+  /api/auth/register:
+    post:
+      summary: Registra un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: testuser
+                password:
+                  type: string
+                  example: password123
+      responses:
+        201:
+          description: Usuario creado exitosamente
+        400:
+          description: El nombre de usuario ya existe
+        500:
+          description: Error del servidor
+  /api/auth/login:
+    post:
+      summary: Inicia sesión y obtiene un token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: testuser
+                password:
+                  type: string
+                  example: password123
+      responses:
+        200:
+          description: Token JWT generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        401:
+          description: Credenciales inválidas
+        500:
+          description: Error del servidor
+  /api/games:
+    get:
+      summary: Obtiene una lista de juegos desde IGDB
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: Fecha de lanzamiento en formato YYYY-MM-DD
+          schema:
+            type: string
+        - name: genre
+          in: query
+          required: false
+          description: Filtro por género de juego
+          schema:
+            type: string
+      responses:
+        200:
+          description: Lista de juegos obtenida
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    release_date:
+                      type: string
+                    genres:
+                      type: array
+                      items:
+                        type: string
+        500:
+          description: Error del servidor
+  /api/games/{id}:
+    get:
+      summary: Obtiene los detalles de un juego por su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del juego
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Detalles del juego obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  release_date:
+                    type: string
+                  genres:
+                    type: array
+                    items:
+                      type: string
+        404:
+          description: Juego no encontrado
+        500:
+          description: Error del servidor
+  /api/dates:
+    get:
+      summary: Obtiene juegos lanzados en una fecha específica
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Fecha en formato YYYY-MM-DD
+          schema:
+            type: string
+      responses:
+        200:
+          description: Juegos obtenidos por fecha
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    release_date:
+                      type: string
+                    genres:
+                      type: array
+                      items:
+                        type: string
+        404:
+          description: No se encontraron juegos para la fecha
+        500:
+          description: Error del servidor

@@ -20,14 +20,17 @@ async function getAccessToken() {
 
 async function fetchGamesByDate(date) {
   const token = await getAccessToken();
-  
-  const startOfDay = Math.floor(new Date(date).setHours(0, 0, 0, 0) / 1000);
-  const endOfDay = Math.floor(new Date(date).setHours(23, 59, 59, 999) / 1000);
+
+  // Extraemos el mes y el día
+  const selectedDate = new Date(date);
+  const month = selectedDate.getMonth() + 1; 
+  const day = selectedDate.getDate(); 
 
   const response = await axios.post(
     'https://api.igdb.com/v4/games',
     `fields name, release_dates.date, platforms.name, genres.name, cover.url; 
-     where release_dates.date >= ${startOfDay} & release_dates.date <= ${endOfDay};`,
+     where release_dates.date != null & 
+           release_dates.human ~ "*-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}";`,
     {
       headers: {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -37,6 +40,7 @@ async function fetchGamesByDate(date) {
   );
   return response.data;
 }
+
 
 async function fetchGameDetails(id) {
   const token = await getAccessToken();

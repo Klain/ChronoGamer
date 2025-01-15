@@ -22,7 +22,7 @@ const LoadingScreen: React.FC<{ message?: string; adImage?: string }> = ({ messa
           clearInterval(timer);
           return 100;
         }
-        const diff = Math.random() * 10;
+        const diff = Math.random() * 100;
         return Math.min(oldProgress + diff, 100);
       });
     }, 500);

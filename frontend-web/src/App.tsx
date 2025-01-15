@@ -31,7 +31,7 @@ const App: React.FC = () => {
           position: 'relative', 
           zIndex: 1,
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         }}
       >
           <AppHeader />
@@ -39,6 +39,7 @@ const App: React.FC = () => {
             sx={{
               flex:1,
               display:'flex',
+              maxHeight:'300rem'
             }}
           >
             <Routes>
@@ -61,7 +62,10 @@ const App: React.FC = () => {
               />
             </Routes>
           </Box>
-          <AppFooter />
+          {false && (
+            <AppFooter />
+          )}
+          
       </Box>
 
       </Router>

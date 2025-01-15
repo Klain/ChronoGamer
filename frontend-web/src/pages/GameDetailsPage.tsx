@@ -74,7 +74,7 @@ const GameDetailsPage: React.FC = () => {
     <Box
       sx={{
         position: 'relative',
-        overflow: 'hidden',
+        overflow:'visible'
       }}
     >
       <Box

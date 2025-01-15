@@ -86,10 +86,22 @@ async function fetchGamesByDate(date) {
     await sleep(500);
   }
 
-  cache[date] = results;
-  console.log(`Resultados acumulados: ${results.length} juegos`);
-  return results;
+  // Procesar los resultados para filtrar solo la fecha de lanzamiento más antigua
+  const processedResults = results.map(game => {
+    const minDate = game.release_dates.reduce((min, release) => {
+      return release.date < min.date ? release : min;
+    });
+    return {
+      ...game,
+      release_dates: [minDate], // Solo conservar la más baja
+    };
+  });
+
+  cache[date] = processedResults;
+  console.log(`Resultados acumulados: ${processedResults.length} juegos`);
+  return processedResults;
 }
+
 
 async function fetchGameDetails(id) {
   const token = await getAccessToken();

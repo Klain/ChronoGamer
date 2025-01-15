@@ -10,6 +10,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  overflow:'visible';
+
 }
 
 #root {
@@ -17,7 +19,35 @@
   height: 100vh;
   display: flex;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
+}
+
+body {
+  --sb-track-color: #4a5f69;
+  --sb-thumb-color: #8b9e94;
+  --sb-size: 14px;
+}
+
+body::-webkit-scrollbar {
+  width: var(--sb-size)
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 8px;
+  border: 1px solid #151515;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  body {
+    scrollbar-color: var(--sb-thumb-color)
+                     var(--sb-track-color);
+  }
 }
 
 a {

@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
 import { Card, Typography, Box, Chip, Button, Rating } from '@mui/material';
+import { ApiGame } from '../models/ApiGame';
 
-interface ApiValue {
-  id: number;
-  name: string;
-}
-
-interface Game {
-  id: number;
-  name: string;
-  genres: ApiValue[];
-  platforms: ApiValue[];
-  cover?: { url: string };
-  summary?: string;
-  rating?:number;
-}
 
 interface GameCardProps {
-  game: Game;
+  game: ApiGame;
   onViewDetails: (id: number) => void;
 }
 
@@ -45,36 +32,43 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
       sx={{ 
         position: 'relative', 
         marginBottom: '4rem',
+        transition: 'transform 0.3s ease-in-out',
+      '&:hover': 
+        { 
+          zIndex: 3,
+          transform: 'translateY(20%) scale(1.3)',
+        },
       }}
     >
       {/* Imagen montada */}
-      {game.cover &&
-              <Box
-              role="img"
-              aria-label={game.name || 'Sin título'}
-              sx={{
-                backgroundImage: `url(${
-                  game.cover
-                    ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
-                    : 'https://via.placeholder.com/200x280?text=No+Image'
-                })`,
-                backgroundRepeat:'no-repeat',
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center',
-                filter:'drop-shadow(0.5rem 0.5rem 0.5rem rgba(34, 34, 37, 0.76));',
-                position: 'absolute',
-                top: '0',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '120px',
-                height: '120px',
-                borderRadius: '50%',
-                border: '0.5rem solid rgb(180, 178, 178)',
-                boxShadow: 3,
-                zIndex: 2,
-              }}
-            />
-      }
+      {game.cover && (
+  <Box
+    role="img"
+    aria-label={game.name || 'Sin título'}
+    sx={{
+      backgroundImage: `url(${
+        game.cover
+          ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
+          : 'https://via.placeholder.com/200x280?text=No+Image'
+      })`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      filter: 'drop-shadow(0.5rem 0.5rem 0.5rem rgba(34, 34, 37, 0.76));',
+      position: 'absolute',
+      top: '0',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '120px',
+      height: '120px',
+      borderRadius: '50%',
+      border: '0.5rem solid rgb(180, 178, 178)',
+      boxShadow: 3,
+      zIndex: 2,
+      }}
+    />
+  )}
+
 
       {/* Tarjeta */}
       <Card
@@ -91,7 +85,7 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
       >
         {
           game.rating &&
-          <Rating name="half-rating" defaultValue={game.rating} precision={0.5} />
+          <Rating name="half-rating" defaultValue={game.rating/20} precision={0.1} readOnly />
         }
         <Typography variant="h6" noWrap>
           {game.name}

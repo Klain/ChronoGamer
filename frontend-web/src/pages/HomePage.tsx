@@ -1,41 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import LoadingScreen from '../components/LoadingScreen';
+import GameCard from '../components/GameCard';
+import { fetchGamesByDate } from '../services/api';
 import {
   Container,
   Typography,
-  Grid,
   Box,
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
-  Pagination,
-  Button,
+  SelectChangeEvent,
 } from '@mui/material';
-import LoadingScreen from '../components/LoadingScreen';
-import { fetchGamesByDate } from '../services/api';
-import { SelectChangeEvent } from '@mui/material';
-
+import Masonry from '@mui/lab/Masonry';
 interface Game {
   id: number;
   name: string;
-  release_dates: { date: number }[];
-  platforms: { id: number; name: string }[];
-  genres?: { id: number; name: string }[];
+  release_dates: ApiDate[];
+  platforms:ApiValue[];
+  genres: ApiValue[];
   cover?: { url: string };
   summary?: string;
+}
+interface ApiValue {
+  id:number;
+  name:string;
+}
+interface ApiDate {
+  id:number;
+  date:number;
 }
 
 const HomePage: React.FC = () => {
   const [sortOption, setSortOption] = useState<string>('year');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
-  const gamesPerPage = 9;
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
   const navigate = useNavigate();
 
   const { data: games, isLoading, error } = useQuery<Game[], Error>({
@@ -43,52 +46,60 @@ const HomePage: React.FC = () => {
     queryFn: () => fetchGamesByDate(new Date().toISOString().split('T')[0]),
   });
 
-  const handleSortChange = (event: SelectChangeEvent<string>) => {
-    const value = event.target.value;
-    setSortOption(value);
-  };
-
-  const handleToggleExpand = (gameId: number) => {
-    setExpandedCards((prevState) => ({
-      ...prevState,
-      [gameId]: !prevState[gameId],
-    }));
-  };
-
-  const sortedGames = React.useMemo(() => {
+  const uniqueGenres: string[] = React.useMemo(() => {
     if (!games) return [];
-    let sorted = [...games];
-    if (sortOption === 'year') {
-      sorted.sort((a, b) => {
-        const dateA = a.release_dates[0]?.date || 0;
-        const dateB = b.release_dates[0]?.date || 0;
-        return dateA - dateB;
-      });
-    } else if (sortOption === 'genre') {
-      sorted.sort((a, b) => {
-        const genreA = a.genres?.[0]?.name || '';
-        const genreB = b.genres?.[0]?.name || '';
-        return genreA.localeCompare(genreB);
-      });
-    } else if (sortOption === 'platform') {
-      sorted.sort((a, b) => {
-        const platformA = a.platforms?.[0]?.name || '';
-        const platformB = b.platforms?.[0]?.name || '';
-        return platformA.localeCompare(platformB);
-      });
-    }
-    return sorted;
-  }, [games, sortOption]);
+    const allGenres: ApiValue[] = games.flatMap(
+      (game: Game) => game.genres || []
+    );
+    const uniqueGenreNames = Array.from(
+      new Set(allGenres.map((genre:ApiValue) => genre.name))
+    );
+    return uniqueGenreNames.sort();
+  }, [games]);
+  
+  const uniquePlatforms: string[] = React.useMemo(() => {
+    if (!games) return [];
+    const allPlatforms: { id: string; name: string }[] = games.flatMap(
+      (game: Game) => game.platforms || []
+    );
+    const uniquePlatformNames = Array.from(
+      new Set(allPlatforms.map((platform) => platform.name))
+    );
+    return uniquePlatformNames.sort();
+  }, [games]);
+  
+  const uniqueYears: number[] = React.useMemo(() => {
+    if (!games) return [];
+    const allYears: number[] = games.flatMap((game: Game) =>
+      game.release_dates.map((releaseDate:ApiDate) =>
+        new Date(releaseDate.date * 1000).getFullYear()
+      )
+    );
+    const uniqueYearValues = Array.from(new Set(allYears));
+    return uniqueYearValues.sort((a, b) => a - b);
+  }, [games]);
+  
+  const filteredGames = React.useMemo(() => {
+    if (!games) return [];
+    return games.filter((game: { genres: any[]; platforms: any[]; release_dates: any[]; }) => {
+      const matchesGenre = selectedGenre
+        ? game.genres?.some((genre: { name: string; }) => genre.name === selectedGenre)
+        : true;
+      const matchesPlatform = selectedPlatform
+        ? game.platforms.some((platform: { name: string; }) => platform.name === selectedPlatform)
+        : true;
+      const matchesYear = selectedYear
+        ? game.release_dates.some((date: { date: number; }) => {
+            const year = new Date(date.date * 1000).getFullYear();
+            return year === selectedYear;
+          })
+        : true;
+      return matchesGenre && matchesPlatform && matchesYear;
+    });
+  }, [games, selectedGenre, selectedPlatform, selectedYear]);
 
-  const paginatedGames = React.useMemo(() => {
-    if (!sortedGames) return [];
-    const indexOfLastGame = currentPage * gamesPerPage;
-    const indexOfFirstGame = indexOfLastGame - gamesPerPage;
-    return sortedGames.slice(indexOfFirstGame, indexOfLastGame);
-  }, [sortedGames, currentPage]);
-
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
+  const handleSortChange = (event: SelectChangeEvent<string>) => {
+    setSortOption(event.target.value);
   };
 
   const handleGameDetails = (id: number) => {
@@ -96,7 +107,19 @@ const HomePage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <LoadingScreen message="Cargando los mejores juegos de la historia..." />;
+    return (
+      <Box 
+      sx={{ 
+        flex:1,
+        display: 'flex',        
+        flexDirection:'column',
+        justifyContent:'flex-end'
+      }}
+      >
+        <LoadingScreen message="Loading" />
+      </Box>
+      
+    );
   }
 
   if (error) {
@@ -109,107 +132,100 @@ const HomePage: React.FC = () => {
     );
   }
 
+  if(!(games??false)){
+    navigate('/error');
+  }
+
   return (
-    <Container sx={{ marginTop: '2rem' }}>
+    <Box 
+      sx={{ 
+        flex:1,
+        padding: '2rem', 
+        display: 'flex', 
+        flexDirection: 'column' 
+      }}
+    >
       <Typography variant="h4" gutterBottom>
         Tal día como hoy se estrenaron los siguientes juegos históricos
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'row-reverse',
+          gap: 2, mb: 2 
+        }}
+      >
+        {/* Filtro por género */}
         <FormControl variant="outlined" sx={{ minWidth: 200 }}>
-          <InputLabel>Ordenar Por</InputLabel>
-          <Select value={sortOption} onChange={handleSortChange} label="Ordenar Por">
-            <MenuItem value="year">Año</MenuItem>
-            <MenuItem value="genre">Género</MenuItem>
-            <MenuItem value="platform">Plataforma</MenuItem>
+          <InputLabel>Género</InputLabel>
+          <Select
+            value={selectedGenre || ''}
+            onChange={(e) => setSelectedGenre(e.target.value || null)}
+            label="Género"
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {uniqueGenres.map((genre) => (
+              <MenuItem key={genre} value={genre}>
+                {genre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Filtro por plataforma */}
+        <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+          <InputLabel>Plataforma</InputLabel>
+          <Select
+            value={selectedPlatform || ''}
+            onChange={(e) => setSelectedPlatform(e.target.value || null)}
+            label="Plataforma"
+          >
+            <MenuItem value="">Todas</MenuItem>
+            {uniquePlatforms.map((platform) => (
+              <MenuItem key={platform} value={platform}>
+                {platform}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Filtro por año */}
+        <FormControl variant="outlined" sx={{ minWidth: 200 }}>
+          <InputLabel>Año</InputLabel>
+          <Select
+            value={selectedYear || ''}
+            onChange={(e) => setSelectedYear(Number(e.target.value) || null)}
+            label="Año"
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {uniqueYears.map((year) => (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
-      <Grid container spacing={3}>
-        {paginatedGames.map((game) => {
-          const isExpanded = expandedCards[game.id] || false;
-
-          const displayedPlatforms = isExpanded
-            ? game.platforms
-            : game.platforms.slice(0, 2);
-
-          const displayedGenres = isExpanded
-            ? game.genres || []
-            : (game.genres || []).slice(0, 2);
-
-          return (
-            <Grid item xs={12} sm={6} md={4} key={game.id}>
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={
-                    game.cover
-                      ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
-                      : 'https://via.placeholder.com/200x280?text=No+Image'
-                  }
-                  alt={game.name}
-                />
-                <CardContent>
-                  <Typography variant="h6" noWrap>
-                    {game.name}
-                  </Typography>
-                  {game.summary && (
-                    <Typography variant="body2" sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}>
-                    {game.summary.slice(0, 400)}...
-                    </Typography>
-                  )}
-                  <Box sx={{ marginTop: '0.5rem' }}>
-                    {displayedGenres.map((genre) => (
-                      <Chip
-                        key={genre.id}
-                        label={genre.name}
-                        size="small"
-                        sx={{ marginRight: '0.5rem', marginBottom: '0.5rem' }}
-                      />
-                    ))}
-                  </Box>
-                  <Box sx={{ marginTop: '0.5rem' }}>
-                    {displayedPlatforms.map((platform) => (
-                      <Chip
-                        key={platform.id}
-                        label={platform.name}
-                        size="small"
-                        sx={{ marginRight: '0.5rem', marginBottom: '0.5rem' }}
-                      />
-                    ))}
-                  </Box>
-                  {(game.platforms.length > 2 || (game.genres || []).length > 2) && (
-                    <Button
-                      size="small"
-                      onClick={() => handleToggleExpand(game.id)}
-                      sx={{ textTransform: 'none', marginBottom: '0.5rem' }}
-                    >
-                      {isExpanded ? 'Ver Menos' : 'Ver Más'}
-                    </Button>
-                  )}
-                  <Box sx={{ marginTop: '1rem', textAlign: 'center' }}>
-                    <Chip
-                      label="Ver Detalles"
-                      color="primary"
-                      onClick={() => handleGameDetails(game.id)}
-                      clickable
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-        <Pagination
-          count={Math.ceil((games?.length || 0) / gamesPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
+      {/* Contenedor Scrolleable */}
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          paddingRight: '1rem',
+          maxHeight: '70vh',
+        }}
+      >
+        <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2}>
+          {filteredGames.map((game:Game) => (
+            <GameCard
+              game={game}
+              onViewDetails={handleGameDetails}
+              key={game.id}
+            />
+          ))}
+        </Masonry>
       </Box>
-    </Container>
+    </Box>
   );
 };
 

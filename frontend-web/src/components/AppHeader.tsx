@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Typography, Box, Toolbar, AppBar } from '@mui/material';
+import { Button, Typography, Box, Toolbar } from '@mui/material';
 
 const AppHeader: React.FC = () => {
   const token = localStorage.getItem('token');

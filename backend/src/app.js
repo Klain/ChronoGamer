@@ -7,7 +7,7 @@ const cron = require('node-cron');
 require('dotenv').config();
 
 const authRouter = require('./routes/auth');
-const gamesRouter = require('./routes/games');
+const { router: gamesRouter } = require('./routes/games');
 const { updateDailyGamesCache } = require('./routes/games');
 
 const swaggerDocument = YAML.load('./src/swagger.yaml');

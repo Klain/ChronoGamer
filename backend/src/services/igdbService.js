@@ -1,8 +1,9 @@
+//backend\src\services\igdbService.js
 const axios = require('axios');
 require('dotenv').config();
 
 let accessToken = null;
-const cache = {};
+const dailyGamesCache = {games:null,date:null};
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getAccessToken() {
@@ -44,11 +45,12 @@ async function fetchWithRetry(url, data, headers, maxRetries = 5) {
 }
 
 async function fetchGamesByDate(date) {
-  if (cache[date]) {
-    console.log(`Sirviendo datos desde caché para la fecha: ${date}`);
-    return cache[date];
-  }
 
+  if (dailyGamesCache.date===date) {
+    console.log(`Sirviendo datos desde caché para la fecha: ${date}`);
+    return dailyGamesCache.games;
+  }
+  dailyGamesCache.date=date;
   const token = await getAccessToken();
   const selectedDate = new Date(date);
   const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); 
@@ -100,9 +102,10 @@ async function fetchGamesByDate(date) {
   });
 
   const processedResults = filteredResults.map(game => {
-    const minDate = game.release_dates.reduce((min, release) => {
+    const minDate = game.release_dates?.reduce((min, release) => {
       return release.date < min.date ? release : min;
-    });
+    }, game.release_dates[0]);
+    if (!minDate) return false;
 
     return {
       ...game,
@@ -111,12 +114,18 @@ async function fetchGamesByDate(date) {
   });
 
   const sortedResults = processedResults.sort((a, b) => {
-    return (b.rating || 0) - (a.rating || 0); // Asegurar que no falle si `rating` es null o undefined
+    return (b.rating || 0) - (a.rating || 0);
   });
 
-  cache[date] = sortedResults;
-  console.log(`Resultados procesados y ordenados: ${sortedResults.length} juegos`);
-  return sortedResults;
+  if (sortedResults.length > 0) {
+    dailyGamesCache.games = sortedResults;
+    dailyGamesCache.date = date;
+    console.log(`Resultados procesados y ordenados: ${sortedResults.length} juegos`);
+  } else {
+      console.error('No se pudo actualizar la caché. Ningún juego encontrado.');
+  }
+
+  return dailyGamesCache;
 }
 
 async function fetchGameDetails(id) {

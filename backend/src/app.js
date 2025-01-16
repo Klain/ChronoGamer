@@ -34,5 +34,4 @@ cron.schedule('0 0 * * *', async () => {
 
 app.listen(PORT, async () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  await updateDailyGamesCache();
 });

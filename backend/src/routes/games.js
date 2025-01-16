@@ -37,27 +37,35 @@ router.get('/gotd', async (req, res) => {
   try {
     const games = await igdbService.fetchGamesByDate(today);
 
-    // Si no hay juegos disponibles
+    // Verificar que hay juegos disponibles
     if (!games || games.length === 0) {
-      return res.status(503).json({ message: 'Los juegos aún no están listos. Intenta más tarde.' });
+      return res.status(503).json({ message: 'No hay juegos disponibles para hoy.' });
     }
 
+    // Asegurarse de que todos los juegos tengan `votes`
+    const gamesWithVotes = games.map(game => ({
+      ...game,
+      votes: game.votes || 0 // Si `votes` no existe, usar `0`
+    }));
+
     // Buscar el juego con más votos
-    const gameWithMostVotes = games.reduce((max, game) => {
-      return (game.votes || 0) > (max.votes || 0) ? game : max;
-    }, null); // Valor inicial como `null`
+    const gameWithMostVotes = gamesWithVotes.reduce((max, game) => {
+      return game.votes > max.votes ? game : max;
+    }, gamesWithVotes[0]); // Usar el primer juego como inicializador
 
-    // Si todos los juegos tienen `votes = 0`, `gameWithMostVotes` será válido pero con votos 0.
-    if (!gameWithMostVotes || gameWithMostVotes.votes === 0) {
-      // Buscar el juego con el mayor `rating`
-      const gameWithHighestRating = games.reduce((max, game) => {
-        return (game.rating || 0) > (max.rating || 0) ? game : max;
-      }, null);
+    // Si todos los juegos tienen 0 votos, buscar el de mayor rating
+    if (gameWithMostVotes.votes === 0) {
+      // Filtrar solo juegos con `rating` definido
+      const gamesWithRatings = gamesWithVotes.filter(game => game.rating !== undefined);
 
-      // Si no hay un juego con rating válido
-      if (!gameWithHighestRating) {
-        return res.status(404).json({ message: 'No hay juegos disponibles para hoy.' });
+      if (gamesWithRatings.length === 0) {
+        return res.status(404).json({ message: 'No hay juegos con rating disponible para hoy.' });
       }
+
+      // Buscar el juego con el mayor `rating`
+      const gameWithHighestRating = gamesWithRatings.reduce((max, game) => {
+        return (game.rating || 0) > (max.rating || 0) ? game : max;
+      }, gamesWithRatings[0]);
 
       return res.json({
         ...gameWithHighestRating,
@@ -65,7 +73,7 @@ router.get('/gotd', async (req, res) => {
       });
     }
 
-    // Si hay un juego con votos válidos, devolverlo
+    // Devolver el juego con más votos
     return res.json({
       ...gameWithMostVotes,
       message: 'Este es el juego del día basado en los votos.',
@@ -75,6 +83,7 @@ router.get('/gotd', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // Obtener juegos por fecha específica
 router.get('/', authenticateToken, async (req, res) => {

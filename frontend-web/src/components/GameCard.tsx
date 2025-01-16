@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Typography, Box, Chip, Button, Rating } from '@mui/material';
 import { ApiGame } from '../models/ApiGame';
+import { formatDate } from '../utils/utils';
 
 
 interface GameCardProps {
@@ -90,7 +91,12 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
         <Typography variant="h6" noWrap>
           {game.name}
         </Typography>
-
+        <Typography
+            variant="subtitle1"
+            sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
+          >
+            {formatDate(game.release_dates[0].date)}
+          </Typography>
         {game.summary && (
           <Typography
             variant="caption"

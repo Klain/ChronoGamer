@@ -87,7 +87,6 @@ async function fetchGamesByDate(date) {
     await sleep(500);
   }
 
-  // Filtrar los juegos con fecha de lanzamiento mínima que coincida con el día y mes
   const filteredResults = results.filter(game => {
     const minDate = game.release_dates.reduce((min, release) => {
       return release.date < min.date ? release : min;
@@ -100,7 +99,6 @@ async function fetchGamesByDate(date) {
     );
   });
 
-  // Conservar solo la fecha mínima de cada juego
   const processedResults = filteredResults.map(game => {
     const minDate = game.release_dates.reduce((min, release) => {
       return release.date < min.date ? release : min;
@@ -108,13 +106,17 @@ async function fetchGamesByDate(date) {
 
     return {
       ...game,
-      release_dates: [minDate], // Solo conservar la más baja
+      release_dates: [minDate],
     };
   });
 
-  cache[date] = processedResults;
-  console.log(`Resultados procesados: ${processedResults.length} juegos`);
-  return processedResults;
+  const sortedResults = processedResults.sort((a, b) => {
+    return (b.rating || 0) - (a.rating || 0); // Asegurar que no falle si `rating` es null o undefined
+  });
+
+  cache[date] = sortedResults;
+  console.log(`Resultados procesados y ordenados: ${sortedResults.length} juegos`);
+  return sortedResults;
 }
 
 async function fetchGameDetails(id) {

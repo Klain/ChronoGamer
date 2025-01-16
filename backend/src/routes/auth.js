@@ -50,4 +50,38 @@ router.post('/login', (req, res) => {
   });
 });
 
+// Voto Usuario
+router.post('/:id/vote', authenticateToken, async (req, res) => {
+  const gameId = parseInt(req.params.id, 10);
+  const userId = req.user.id;
+  const today = new Date().toISOString().split('T')[0];
+
+  try {
+    db.get('SELECT last_vote_date FROM users WHERE id = ?', [userId], (err, row) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error al verificar el último voto' });
+      }
+
+      if (row && row.last_vote_date === today) {
+        return res.status(400).json({ message: 'Ya has votado hoy' });
+      }
+
+      db.run('UPDATE users SET last_vote_date = ? WHERE id = ?', [today, userId], function (err) {
+        if (err) {
+          return res.status(500).json({ error: 'Error al registrar el voto' });
+        }
+
+        const game = dailyGamesCache.find(g => g.id === gameId);
+        if (game) {
+          game.votes = (game.votes || 0) + 1;
+        }
+
+        res.status(200).json({ message: 'Voto registrado correctamente' });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

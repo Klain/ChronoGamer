@@ -37,7 +37,7 @@ const AppHeader: React.FC = () => {
           ChronoGamer
         </Typography>
 
-        {/* Navegación */}
+        {/* Navegación 
         <Box component="nav" sx={{ display: 'flex', alignItems: 'center' }}>
           {!token ? (
             <>
@@ -54,6 +54,7 @@ const AppHeader: React.FC = () => {
             </Button>
           )}
         </Box>
+        */}
       </Toolbar>
     </Box>
   );

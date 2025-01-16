@@ -34,7 +34,7 @@ const App: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-          <AppHeader />
+          {/*<AppHeader />*/}
           <Box
             sx={{
               flex:1,

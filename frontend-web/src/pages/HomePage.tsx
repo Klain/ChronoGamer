@@ -131,9 +131,6 @@ const HomePage: React.FC = () => {
         flexDirection: 'column',
       }}
     >
-      <Box>
-        <GameCardPro />
-      </Box>
       <Typography variant="h4" gutterBottom>
         Tal día como hoy se estrenaron los siguientes juegos históricos
       </Typography>

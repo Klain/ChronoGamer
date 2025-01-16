@@ -18,52 +18,64 @@ const LandingPage: React.FC = () => {
   }, [navigate]);
 
   return (
-
     <Box
       sx ={{
         flex:1,
         display: 'flex',
-        flexDirection:'column',
+        flexDirection:'row',
         justifyContent:'space-between',
         textAlign: 'center', 
         marginTop: '4rem' 
       }}
     >
-    <Box>
-        <Typography variant="h3" gutterBottom>
-          Bienvenido a ChronoGamer
-        </Typography>
-        <Typography variant="h6" paragraph>
-          Explora videojuegos históricos, descubre títulos épicos y accede a los detalles
-          más completos. Únete a nosotros y revive la historia de los videojuegos.
-        </Typography>
-      </Box>
-      <Box>
-        <Box sx={{ marginTop: '2rem' }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setIsLogin(false)}
-            sx={{ marginRight: '1rem' }}
-          >
-            Registrarse
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => setIsLogin(true)}
-          >
-            Iniciar Sesión
-          </Button>
+      <Box 
+        sx={{
+          width:'40%',
+        }}
+      >
+        <Box>
+          <Typography variant="h3" gutterBottom>
+            Bienvenido a ChronoGamer
+          </Typography>
+          <Typography variant="h6" paragraph>
+            Explora videojuegos históricos, descubre títulos épicos y accede a los detalles
+            más completos. Únete a nosotros y revive la historia de los videojuegos.
+          </Typography>
         </Box>
         <Box>
-          {isLogin && (
-            <LoginComponent />
-          )}
-          {!isLogin && (
-            <RegisterComponent />
-          )}
+          <Box sx={{ marginTop: '2rem' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsLogin(false)}
+              sx={{ marginRight: '1rem' }}
+            >
+              Registrarse
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => setIsLogin(true)}
+            >
+              Iniciar Sesión
+            </Button>
+          </Box>
+          <Box>
+            {isLogin && (
+              <LoginComponent />
+            )}
+            {!isLogin && (
+              <RegisterComponent />
+            )}
+          </Box>
         </Box>
+      </Box>
+      <Box 
+        sx={{
+          width:'60%',
+        }}
+      >
+        <GameCardPro />
       </Box>
     </Box>
   );

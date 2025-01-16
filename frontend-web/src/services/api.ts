@@ -34,4 +34,13 @@ export const fetchGamesByDate = async (date: string): Promise<ApiGame[]> => {
 export const fetchGameDetails = (id: number) =>
   api.get(`/api/games/${id}`);
 
+export const fetchGameOfTheDay = async (): Promise<ApiGame> => {
+  const response = await api.get('/api/games/gotd');
+  return response.data;
+};
+
+export const voteForGame = async (id: number): Promise<void> => {
+  await api.post(`/api/games/${id}/vote`);
+};
+
 export default api;

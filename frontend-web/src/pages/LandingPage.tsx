@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Typography, Button, Box } from '@mui/material';
 import LoginComponent from '../components/Login';
 import RegisterComponent from '../components/Register';
+import GameCardPro from '../components/GameCardPro';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,6 +37,9 @@ const LandingPage: React.FC = () => {
           Explora videojuegos históricos, descubre títulos épicos y accede a los detalles
           más completos. Únete a nosotros y revive la historia de los videojuegos.
         </Typography>
+      </Box>
+      <Box>
+        <GameCardPro />
       </Box>
       <Box>
         <Box sx={{ marginTop: '2rem' }}>

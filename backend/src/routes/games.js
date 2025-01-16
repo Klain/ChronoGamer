@@ -92,36 +92,44 @@ router.post('/:id/vote', authenticateToken, async (req, res) => {
 router.get('/gotd', async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
-      const games = await igdbService.fetchGamesByDate(today);
-      if (!games || games.length === 0) {
-          return res.status(503).json({ message: 'Los juegos aún no están listos. Intenta más tarde.' });
+    const games = await igdbService.fetchGamesByDate(today);
+
+    // Si no hay juegos disponibles
+    if (!games || games.length === 0) {
+      return res.status(503).json({ message: 'Los juegos aún no están listos. Intenta más tarde.' });
+    }
+
+    // Buscar el juego con más votos
+    const gameWithMostVotes = games.reduce((max, game) => {
+      return (game.votes || 0) > (max.votes || 0) ? game : max;
+    }, null); // Valor inicial como `null`
+
+    // Si todos los juegos tienen `votes = 0`, `gameWithMostVotes` será válido pero con votos 0.
+    if (!gameWithMostVotes || gameWithMostVotes.votes === 0) {
+      // Buscar el juego con el mayor `rating`
+      const gameWithHighestRating = games.reduce((max, game) => {
+        return (game.rating || 0) > (max.rating || 0) ? game : max;
+      }, null);
+
+      // Si no hay un juego con rating válido
+      if (!gameWithHighestRating) {
+        return res.status(404).json({ message: 'No hay juegos disponibles para hoy.' });
       }
 
-      // Buscar el juego con más votos
-      const gameWithMostVotes = games.reduce((max, game) => {
-          return (game.votes || 0) > (max.votes || 0) ? game : max;
-      }, {});
-
-      if (!gameWithMostVotes.votes || gameWithMostVotes.votes === 0) {
-          // Si no hay votos, buscar el de mayor rating
-          const gameWithHighestRating = games.reduce((max, game) => {
-              return (game.rating || 0) > (max.rating || 0) ? game : max;
-          }, {});
-          if (!gameWithHighestRating.id) {
-              return res.status(404).json({ message: 'No hay juegos disponibles para hoy.' });
-          }
-          return res.json({
-              ...gameWithHighestRating,
-              message: 'Este es el juego del día basado en el rating, ya que no hay votos.',
-          });
-      }
-
-      res.json({
-          ...gameWithMostVotes,
-          message: 'Este es el juego del día basado en los votos.',
+      return res.json({
+        ...gameWithHighestRating,
+        message: 'Este es el juego del día basado en el rating, ya que no hay votos.',
       });
+    }
+
+    // Si hay un juego con votos válidos, devolverlo
+    return res.json({
+      ...gameWithMostVotes,
+      message: 'Este es el juego del día basado en los votos.',
+    });
+
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

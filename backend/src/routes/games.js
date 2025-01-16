@@ -115,5 +115,7 @@ router.get('/gotd', authenticateToken, (req, res) => {
     await updateDailyGamesCache();
 })();
 
-// Exportar el router
-module.exports = router;
+module.exports = {
+  updateDailyGamesCache,
+  router
+};

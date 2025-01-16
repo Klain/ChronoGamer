@@ -1,3 +1,4 @@
+//backend\src\routes\games.js
 const express = require('express');
 const authenticateToken = require('../middleware/auth');
 const igdbService = require('../services/igdbService');
@@ -84,7 +85,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
   });
 
 // Endpoint para obtener el juego del día (con más votos)
-router.get('/gotd', (req, res) => {
+router.get('/gotd', authenticateToken, (req, res) => {
   if (dailyGamesCache.length === 0) {
       return res.status(503).json({ message: 'Los juegos aún no están listos. Intenta más tarde.' });
   }

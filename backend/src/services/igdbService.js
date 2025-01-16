@@ -59,14 +59,15 @@ async function fetchGamesByDate(date) {
 
   for (let year = startYear; year <= currentYear; year++) {
     const dateForYear = `${year}-${month}-${day}`;
-    const timestamp = new Date(dateForYear).getTime() / 1000;
+    const timestampStart = new Date(dateForYear).getTime() / 1000;
+    const timestampEnd = timestampStart + 86400; // 24 horas después
 
     try {
-      console.log(`Consultando juegos para la fecha: ${dateForYear} (timestamp: ${timestamp})`);
+      console.log(`Consultando juegos para la fecha: ${dateForYear}`);
       const response = await fetchWithRetry(
         'https://api.igdb.com/v4/games',
         `fields id, name, genres.name, platforms.name, cover.url, release_dates.date, summary, rating; 
-         where release_dates.date = ${timestamp};`,
+         where release_dates.date >= ${timestampStart} & release_dates.date < ${timestampEnd};`,
         {
           'Client-ID': process.env.TWITCH_CLIENT_ID,
           Authorization: `Bearer ${token}`,
@@ -86,11 +87,25 @@ async function fetchGamesByDate(date) {
     await sleep(500);
   }
 
-  // Procesar los resultados para filtrar solo la fecha de lanzamiento más antigua
-  const processedResults = results.map(game => {
+  // Filtrar los juegos con fecha de lanzamiento mínima que coincida con el día y mes
+  const filteredResults = results.filter(game => {
+    const minDate = game.release_dates.reduce((min, release) => {
+      return release.date < min.date ? release : min;
+    }, game.release_dates[0]);
+
+    const releaseDate = new Date(minDate.date * 1000);
+    return (
+      releaseDate.getMonth() + 1 === parseInt(month, 10) &&
+      releaseDate.getDate() === parseInt(day, 10)
+    );
+  });
+
+  // Conservar solo la fecha mínima de cada juego
+  const processedResults = filteredResults.map(game => {
     const minDate = game.release_dates.reduce((min, release) => {
       return release.date < min.date ? release : min;
     });
+
     return {
       ...game,
       release_dates: [minDate], // Solo conservar la más baja
@@ -98,10 +113,9 @@ async function fetchGamesByDate(date) {
   });
 
   cache[date] = processedResults;
-  console.log(`Resultados acumulados: ${processedResults.length} juegos`);
+  console.log(`Resultados procesados: ${processedResults.length} juegos`);
   return processedResults;
 }
-
 
 async function fetchGameDetails(id) {
   const token = await getAccessToken();

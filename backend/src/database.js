@@ -13,13 +13,17 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 db.serialize(() => {
   db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL,
-      vote_date DATE NOT NULL,
-    )
-  `);
+      CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          last_vote_date DATE
+      )
+  `, (err) => {
+      if (err) {
+          console.error('Error creando la tabla de usuarios:', err.message);
+      }
+  });
 });
 
 module.exports = db;

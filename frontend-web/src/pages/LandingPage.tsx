@@ -39,9 +39,6 @@ const LandingPage: React.FC = () => {
         </Typography>
       </Box>
       <Box>
-        <GameCardPro />
-      </Box>
-      <Box>
         <Box sx={{ marginTop: '2rem' }}>
           <Button
             variant="contained"

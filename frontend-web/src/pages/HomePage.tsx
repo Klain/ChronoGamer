@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import Masonry from '@mui/lab/Masonry';
 import { ApiGame } from '../models/ApiGame';
+import GameCardPro from '../components/GameCardPro';
 
 type FilterData = {
   genres: string[];
@@ -130,6 +131,9 @@ const HomePage: React.FC = () => {
         flexDirection: 'column',
       }}
     >
+      <Box>
+        <GameCardPro />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Tal día como hoy se estrenaron los siguientes juegos históricos
       </Typography>

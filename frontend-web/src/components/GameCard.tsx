@@ -1,8 +1,11 @@
-import React, { useState,useEffect } from 'react';
-import { Card, Typography, Box, Chip, Button, Rating, Badge } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, Typography, Box, Chip, Button, Rating, Badge, IconButton } from '@mui/material';
 import { ApiGame } from '../models/ApiGame';
 import { formatDate } from '../utils/utils';
 import { voteForGame } from '../services/api';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 
 
 interface GameCardProps {
@@ -10,9 +13,10 @@ interface GameCardProps {
   onViewDetails: (id: number) => void;
   isVoted : Boolean;
   canVote : Boolean;
+  handleAfterVote: (idVotedGame:number) => void; 
 }
 
-const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canVote }) => {
+const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canVote, handleAfterVote }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const displayedPlatforms = game.platforms ? 
@@ -32,7 +36,10 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
   };
 
   const handleVote = ()=>{
-    voteForGame(game.id);
+    if(!isVoted){ 
+      voteForGame(game.id); 
+      handleAfterVote(game.id);
+    } 
   }
 
   return (
@@ -141,7 +148,11 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
             {isExpanded ? 'Ver Menos' : 'Ver Más'}
           </Button>
         )}
-        <Box sx={{ marginTop: '1rem' }}>
+        <Box sx={{ 
+          marginTop: '1rem',
+          diplay:'flex',
+          gap: '1rem'
+          }}>
           <Chip
             label="Ver Detalles"
             color="primary"
@@ -156,14 +167,14 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
               horizontal: 'right',
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
+            <IconButton
+              sx={{
+                color : isVoted ? 'rgba(255, 0, 0, 1)' :( canVote ? 'rgba(128, 0, 128, 1)' : 'rgba(255, 105, 180, 1)')
+              }}
               onClick={canVote ? handleVote : undefined}
-              disabled={isVoted}
             >
-              {!canVote ? 'Votaste' : 'Votar'}
-            </Button>
+              {isVoted ? <FavoriteIcon /> :( canVote ? <FavoriteBorderIcon /> : <HeartBrokenIcon/>)}
+            </IconButton>
           </Badge>
         </Box>
       </Card>

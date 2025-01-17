@@ -105,6 +105,10 @@ const HomePage: React.FC = () => {
     navigate(`/game/${id}`);
   };
 
+  const handleAfterVote = (idVotedGama : number) =>{
+    setIdVotedGame(idVotedGama);
+  }
+
   if (isLoading) {
     return (
       <Box 
@@ -260,6 +264,7 @@ const HomePage: React.FC = () => {
                 onViewDetails={handleGameDetails}
                 isVoted={idVotedGame==game.id}
                 canVote={idVotedGame==null}
+                handleAfterVote={handleAfterVote}
                 key={game.id}
               />
             ))}

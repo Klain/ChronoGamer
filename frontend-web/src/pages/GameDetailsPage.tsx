@@ -7,8 +7,12 @@ import {
   Box,
   Button,
   CircularProgress,
-  Grid,
+  Rating,
+  Grid2
 } from '@mui/material';
+import { formatDate } from '../utils/utils';
+import AppHeader from '../components/AppHeader';
+
 
 const GameDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +49,7 @@ const GameDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
+      
       <Box
         sx={{
           height: '100vh',
@@ -53,6 +58,7 @@ const GameDetailsPage: React.FC = () => {
           alignItems: 'center',
         }}
       >
+        <AppHeader />
         <CircularProgress />
       </Box>
     );
@@ -61,6 +67,7 @@ const GameDetailsPage: React.FC = () => {
   if (error) {
     return (
       <Container>
+        <AppHeader />
         <Typography color="error" variant="h6">
           {error}
         </Typography>
@@ -77,6 +84,7 @@ const GameDetailsPage: React.FC = () => {
         position: 'relative',
       }}
     >
+      <AppHeader />
       <Box
         sx={{
           background: 'var(--game-cover) no-repeat center center / cover',
@@ -91,71 +99,119 @@ const GameDetailsPage: React.FC = () => {
         }}
       />
       <Box sx={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
-      <Typography variant="h4">{game.name}</Typography>
+        <Box
+          sx={{
+            display:'flex',
+            flexDirection:'row'   
+          }}
+        >
+          {/*Portada*/}
+          <Box
+            sx={{
+              padding:'2rem 1rem 2rem 1rem',
+              width:'30%'
+            }}
+          >
+            {game.cover && (
+              <Box
+                role="img"
+                aria-label={game.name || 'Sin título'}
+                sx={{
+                  backgroundImage: `url(${
+                    game.cover
+                      ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
+                      : 'https://via.placeholder.com/200x280?text=No+Image'
+                  })`,
+                  width:'100%',
+                  height:'100%',
+                  backgroundColor:'black',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  filter: 'drop-shadow(0.5rem 0.5rem 0.5rem rgba(34, 34, 37, 0.76));',
+                  borderRadius: '5%',
+                  border: '0.5rem solid rgb(180, 178, 178)',
+                  boxShadow: 3,
+                  zIndex: 2,
+                }}
+              />
+            )}
+          </Box>
 
-        {/* Diseño dividido: portada y detalles */}
-        <Grid container spacing={4}>
-            {/* Portada */}
-            <Grid item xs={12} md={4}>
-              {game.cover ? (
-                <img
-                  src={`https:${game.cover.url.replace('t_thumb', 't_cover_big')}`}
-                  alt="Portada del juego"
-                  style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '300px',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant="body1">Sin Portada</Typography>
-                </Box>
-              )}
-            </Grid>
+          {/*Detalle*/}
+          <Box
+            sx={{
+              padding:'2rem 1rem 2rem 1rem',
+              width:'70%'
+            }}
+          >
+            <Typography variant="h4">{game.name}</Typography>
+        
+            <Rating name="half-rating" defaultValue={game.rating/20} precision={0.1} readOnly />
+        
+            <Typography
+              variant="subtitle1"
+              sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
+            >
+            {formatDate(game.release_dates[0].date)}
+            </Typography>
+        
+            {game.summary && (
+              <Typography
+                variant="caption"
+                sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
+              >
+                {game.summary}
+              </Typography>
+            )}
 
-            {/* Detalles */}
-            <Grid item xs={12} md={8}>
-              <Typography variant="body1" sx={{ marginBottom: '1rem' }}>
-                <strong>Resumen:</strong> {game.summary || 'No disponible'}
-              </Typography>
-              <Typography variant="body1" sx={{ marginBottom: '1rem' }}>
-                <strong>Géneros:</strong> {game.genres.map((genre: any) => genre.name).join(', ') || 'No disponible'}
-              </Typography>
-              <Typography variant="body1" sx={{ marginBottom: '1rem' }}>
-                <strong>Plataformas:</strong> {game.platforms.map((platform: any) => platform.name).join(', ') || 'No disponible'}
-              </Typography>
-            </Grid>
-          </Grid>
+            <Typography variant="body1" sx={{ marginBottom: '1rem' }}>
+              <strong>Géneros:</strong> {game.genres.map((genre: any) => genre.name).join(', ') || 'No disponible'}
+            </Typography>
 
-          {/* Capturas de pantalla */}
-          {game.screenshots && game.screenshots.length > 0 && (
-            <Box sx={{ marginTop: '2rem' }}>
+            <Typography variant="body1" sx={{ marginBottom: '1rem' }}>
+              <strong>Plataformas:</strong> {game.platforms.map((platform: any) => platform.name).join(', ') || 'No disponible'}
+            </Typography>
+
+            {/* Capturas de pantalla */}
+            {game.screenshots && game.screenshots.length > 0 && (
+              <Box sx={{ marginTop: '2rem' }}>
               <Typography variant="h6" gutterBottom>
                 Capturas de pantalla
               </Typography>
-              <Grid container spacing={2}>
+              <Grid2 container spacing={2}>
                 {game.screenshots.map((screenshot: any) => (
-                  <Grid item xs={6} md={4} key={screenshot.id}>
+                  <Grid2
+                    size={{ xs:6, md:4 }}
+                    key={screenshot.id}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
                     <img
                       src={`https:${screenshot.url.replace('t_thumb', 't_screenshot_big')}`}
                       alt={`Screenshot ${screenshot.id}`}
-                      style={{ width: '100%', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/300?text=No+Image';
+                      }}
+                      style={{
+                        width: '100%',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        objectFit: 'cover', 
+                      }}
                     />
-                  </Grid>
+                  </Grid2>
                 ))}
-              </Grid>
+              </Grid2>
             </Box>
           )}
-
-          {/* Botón de retorno */}
-          <Box sx={{ marginTop: '2rem', textAlign: 'center' }}>
+        </Box>
+      </Box>   
+      {/* Botón de retorno */}
+      <Box sx={{ marginTop: '2rem', textAlign: 'center' }}>
               <Button
               onClick={() => navigate('/home')}
               variant="contained"
@@ -164,9 +220,8 @@ const GameDetailsPage: React.FC = () => {
               Volver a la Página Principal
             </Button>
           </Box>
-        <Grid/>
     </Box>
-    </Box>
+  </Box>
   );
 };
 

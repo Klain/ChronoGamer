@@ -2,6 +2,7 @@
 const express = require('express');
 const authenticateToken = require('../middleware/auth');
 const igdbService = require('../services/igdbService');
+const db = require('../database');
 
 const router = express.Router();
 

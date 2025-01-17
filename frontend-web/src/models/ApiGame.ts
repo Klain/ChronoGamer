@@ -11,4 +11,5 @@ export interface ApiGame {
   summary?: string;
   rating?:number;
   release_dates:ApiDate[];
+  votes?:number;
 }

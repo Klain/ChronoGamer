@@ -5,7 +5,7 @@ import LoadingScreen from '../components/LoadingScreen';
 import GameCard from '../components/GameCard';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { fetchGamesByDate } from '../services/api';
+import { fetchGamesByDate, fetchVotedGameToday } from '../services/api';
 import {
   Container,
   Typography,
@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import Masonry from '@mui/lab/Masonry';
 import { ApiGame } from '../models/ApiGame';
-import GameCardPro from '../components/GameCardPro';
+import AppHeader from '../components/AppHeader';
 
 type FilterData = {
   genres: string[];
@@ -32,6 +32,7 @@ const HomePage: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [idVotedGame, setIdVotedGame] = useState<number | null>(null);
   const [filterVisible, setFilterVisible] = useState<boolean>(false);
   const [filterData, setFilterData] = useState<FilterData>({
     genres: [],
@@ -65,6 +66,18 @@ const HomePage: React.FC = () => {
       setFilterData({ genres, platforms, decades });
     }
   }, [games]);
+
+  useEffect(() => {
+    const checkVotedGame = async () => {
+      try {
+        setIdVotedGame(await fetchVotedGameToday());
+      } catch (error) {
+        console.error('Error al verificar el voto:', error);
+      }
+    };
+
+    checkVotedGame();
+  }, []);
 
   const filteredGames = React.useMemo(() => {
     if (!games) return [];
@@ -102,6 +115,7 @@ const HomePage: React.FC = () => {
         justifyContent:'flex-end'
       }}
       >
+        <AppHeader />
         <LoadingScreen message="Loading" />
       </Box>
       
@@ -111,6 +125,7 @@ const HomePage: React.FC = () => {
   if (error) {
     return (
       <Container>
+        <AppHeader />
         <Typography color="error" variant="h6">
           Error al cargar los juegos. Intenta más tarde.
         </Typography>
@@ -131,6 +146,7 @@ const HomePage: React.FC = () => {
         flexDirection: 'column',
       }}
     >
+      <AppHeader />
       <Typography variant="h4" gutterBottom>
         Tal día como hoy se estrenaron los siguientes juegos históricos
       </Typography>
@@ -242,6 +258,8 @@ const HomePage: React.FC = () => {
               <GameCard
                 game={game}
                 onViewDetails={handleGameDetails}
+                isVoted={idVotedGame==game.id}
+                canVote={idVotedGame==null}
                 key={game.id}
               />
             ))}

@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { Card, Typography, Box, Chip, Button, Rating } from '@mui/material';
+import React, { useState,useEffect } from 'react';
+import { Card, Typography, Box, Chip, Button, Rating, Badge } from '@mui/material';
 import { ApiGame } from '../models/ApiGame';
 import { formatDate } from '../utils/utils';
+import { voteForGame } from '../services/api';
 
 
 interface GameCardProps {
   game: ApiGame;
   onViewDetails: (id: number) => void;
+  isVoted : Boolean;
+  canVote : Boolean;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
+const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canVote }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const displayedPlatforms = game.platforms ? 
@@ -27,6 +30,10 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
   const handleViewDetails = () => {
     onViewDetails?.(game.id);
   };
+
+  const handleVote = ()=>{
+    voteForGame(game.id);
+  }
 
   return (
     <Box 
@@ -141,6 +148,23 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails }) => {
             onClick={handleViewDetails}
             clickable
           />
+          <Badge
+            badgeContent={game.votes || 0}
+            color="secondary"
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={canVote ? handleVote : undefined}
+              disabled={isVoted}
+            >
+              {!canVote ? 'Votaste' : 'Votar'}
+            </Button>
+          </Badge>
         </Box>
       </Card>
     </Box>

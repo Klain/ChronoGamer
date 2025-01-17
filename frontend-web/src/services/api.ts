@@ -48,7 +48,7 @@ export const voteForGame = async (id: number): Promise<void> => {
 // Obtener el ID del juego votado hoy
 export const fetchVotedGameToday = async (): Promise<number | null> => {
   try {
-    const response = await api.get('/api/users/voted-game');
+    const response = await api.get('/api/auth/voted-game');
     return response.data.id_voted_game;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {

@@ -5,6 +5,7 @@ import { Container,  Typography,  Box, Button, CircularProgress, Rating, Grid2 }
 import { formatDate } from '../utils/utils';
 import AppHeader from '../components/AppHeader';
 import { useMediaQuery, useTheme } from '@mui/material';
+import VideoGrid from '../components/VideoGrid';
 
 
 
@@ -107,7 +108,7 @@ const GameDetailsPage: React.FC = () => {
           <Box
             sx={{
               padding:'2rem 1rem 2rem 1rem',
-              width:'30%'
+              width:{ xs:'auto', md:'30%', lg:'30%'  }
             }}
           >
             {game.cover && (
@@ -120,7 +121,6 @@ const GameDetailsPage: React.FC = () => {
                       ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.url.split('/').pop()}`
                       : 'https://via.placeholder.com/200x280?text=No+Image'
                   })`,
-                  width:'100%',
                   height:'20rem',
                   backgroundColor:'black',
                   backgroundRepeat: 'no-repeat',
@@ -140,7 +140,8 @@ const GameDetailsPage: React.FC = () => {
           <Box
             sx={{
               padding:'2rem 1rem 2rem 1rem',
-              width:'70%'
+              width:{ xs:'auto', md:'70%', lg:'70%'  }
+
             }}
           >
             <Typography variant="h4" sx={{ marginBottom: '1rem' }}>{game.name}</Typography>
@@ -175,36 +176,9 @@ const GameDetailsPage: React.FC = () => {
             {game.videos && game.videos.length > 0 && (
             <Box sx={{ marginTop: '2rem' }}>
               <Typography variant="h6" gutterBottom>
-                Video del Juego
+                Videos del Juego
               </Typography>
-              
-                <Box
-                  sx={{
-                    position: 'relative',
-                    paddingBottom: '56.25%', // Relación de aspecto 16:9
-                    height: 0,
-                    overflow: 'hidden',
-                    marginBottom: '2rem',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                  }}
-                >
-                  <iframe
-                    src={`https://www.youtube.com/embed/${game.videos[0]}`}
-                    title="Game Video"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: '8px',
-                    }}
-                  ></iframe>
-                </Box>
+              <VideoGrid videos={game.videos}/>
             </Box>
             )}
             {/* Capturas de pantalla */}

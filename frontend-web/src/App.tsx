@@ -24,7 +24,7 @@ const App: React.FC = () => {
       <Router>
         <Box
         sx={{
-          width: '66vw',
+          width:{ xs:'100vw', md:'66vw', lg:'66vw'  },
           margin: '0 auto',
           padding: '2rem 0 0 0',
           position: 'relative', 

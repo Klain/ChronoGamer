@@ -121,7 +121,6 @@ const GameDetailsPage: React.FC = () => {
                       : 'https://via.placeholder.com/200x280?text=No+Image'
                   })`,
                   width:'100%',
-                  height:'100%',
                   backgroundColor:'black',
                   backgroundRepeat: 'no-repeat',
                   backgroundSize: 'contain',
@@ -171,6 +170,42 @@ const GameDetailsPage: React.FC = () => {
               <strong>Plataformas:</strong> {game.platforms.map((platform: any) => platform.name).join(', ') || 'No disponible'}
             </Typography>
 
+            {/* Youtube */}
+            {game.videos && game.videos.length > 0 && (
+            <Box sx={{ marginTop: '2rem' }}>
+              <Typography variant="h6" gutterBottom>
+                Video del Juego
+              </Typography>
+              
+                <Box
+                  sx={{
+                    position: 'relative',
+                    paddingBottom: '56.25%', // Relación de aspecto 16:9
+                    height: 0,
+                    overflow: 'hidden',
+                    marginBottom: '2rem',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                  }}
+                >
+                  <iframe
+                    src={`https://www.youtube.com/embed/${game.videos[0]}`}
+                    title="Game Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '8px',
+                    }}
+                  ></iframe>
+                </Box>
+            </Box>
+            )}
             {/* Capturas de pantalla */}
             {game.screenshots && game.screenshots.length > 0 && (
               <Box sx={{ marginTop: '2rem' }}>

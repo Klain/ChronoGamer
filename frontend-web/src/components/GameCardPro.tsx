@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Typography, Box, Chip, Rating, CircularProgress } from '@mui/material';
 import { ApiGame } from '../models/ApiGame';
-import { formatDate } from '../utils/utils';
 import { fetchGameOfTheDay } from '../services/api';
 
 const GameCardPro: React.FC = () => {
@@ -26,12 +25,6 @@ const GameCardPro: React.FC = () => {
 
     loadGameOfTheDay();
   }, []);
-
-  const handleViewDetails = () => {
-    if(gotd && gotd.id){
-      navigate(`/game/${gotd.id}`);
-    }
-  };
 
   if (loading) {
     return (

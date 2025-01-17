@@ -17,7 +17,8 @@ db.serialize(() => {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           username TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL,
-          last_vote_date DATE
+          last_vote_date DATE,
+          id_voted_game TEXT
       )
   `, (err) => {
       if (err) {

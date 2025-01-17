@@ -3,6 +3,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const authenticateToken = require('../middleware/auth');
 const db = require('../database');
 const router = express.Router();
 
@@ -47,6 +48,45 @@ router.post('/login', (req, res) => {
       res.json({ token });
     }
   });
+});
+
+// Obtener el id del juego votado hoy por un usuario
+router.get('/voted-game', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const today = new Date().toISOString().split('T')[0];
+
+  try {
+    // Consultar la información del usuario
+    const userRow = await new Promise((resolve, reject) => {
+      db.get(
+        'SELECT id_voted_game, last_vote_date FROM users WHERE id = ?',
+        [userId],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        }
+      );
+    });
+
+    if (!userRow) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Verificar si el último voto fue hecho hoy
+    if (userRow.last_vote_date === today) {
+      return res.status(200).json({
+        id_voted_game: userRow.id_voted_game,
+        message: 'Juego votado hoy encontrado',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'No se ha registrado un voto hoy para este usuario',
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 module.exports = router;

@@ -84,7 +84,6 @@ router.get('/gotd', async (req, res) => {
   }
 });
 
-
 // Obtener juegos por fecha específica
 router.get('/', authenticateToken, async (req, res) => {
   const date = req.query.date || new Date().toISOString().split('T')[0];
@@ -95,8 +94,6 @@ router.get('/', authenticateToken, async (req, res) => {
       res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // Obtener detalles completos de un juego por ID
 router.get('/:id', authenticateToken, async (req, res) => {
@@ -110,41 +107,49 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Registrar un voto para un juego
-router.post('/:id/vote', authenticateToken, async (req, res) => {
-  const gameId = parseInt(req.params.id, 10);
-  const userId = req.user.id; // `req.user` se llena con el token en authenticateToken
+router.post('/:idGame/vote', authenticateToken, async (req, res) => {
+  const gameId = parseInt(req.params.idGame, 10);
+  const userId = req.user.id;
   const today = new Date().toISOString().split('T')[0];
-
   try {
+
+    const userRow = await new Promise((resolve, reject) => {
       db.get('SELECT last_vote_date FROM users WHERE id = ?', [userId], (err, row) => {
-          if (err) {
-              return res.status(500).json({ error: 'Error al verificar el último voto' });
-          }
-
-          if (row && row.last_vote_date === today) {
-              return res.status(400).json({ message: 'Ya has votado hoy' });
-          }
-
-          db.run('UPDATE users SET last_vote_date = ? WHERE id = ?', [today, userId], function (err) {
-              if (err) {
-                  return res.status(500).json({ error: 'Error al registrar el voto' });
-              }
-
-              igdbService.fetchGamesByDate(today).then((games) => {
-                  const game = games.find((g) => g.id === gameId);
-                  if (game) {
-                      game.votes = (game.votes || 0) + 1; // Incrementa los votos
-                  }
-                  res.status(200).json({ message: 'Voto registrado correctamente' });
-              });
-          });
+        if (err) reject(err);
+        else resolve(row);
       });
+    });
+
+    if (userRow && userRow.last_vote_date === today) {
+      return res.status(400).json({ message: 'Ya has votado hoy' });
+    }
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE users SET last_vote_date = ?, id_voted_game = ? WHERE id = ?',
+        [today, gameId, userId],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+
+    const games = await igdbService.fetchGamesByDate(today);
+
+    const game = games.find((g) => g.id === gameId);
+    if (!game) {
+      return res.status(404).json({ message: 'Juego no encontrado' });
+    }
+
+    game.votes = (game.votes || 0) + 1;
+
+    res.status(200).json({ message: 'Voto registrado correctamente', game });
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
-
 
 // Inicializar el caché al cargar las rutas
 (async () => {

@@ -178,10 +178,10 @@ const GameDetailsPage: React.FC = () => {
                 Capturas de pantalla
               </Typography>
               <Grid2 container spacing={2}>
-                {game.screenshots.map((url:string, index:string) => (
+                {game.screenshots.map((screenshot: { id: number; url: string }) => (
                   <Grid2
                     size={{ xs:6, md:4 }}
-                    key={index}
+                    key={id}
                     sx={{
                       display: 'flex',
                       justifyContent: 'center',
@@ -189,10 +189,8 @@ const GameDetailsPage: React.FC = () => {
                     }}
                   >
                     <img 
-                      key={index} src={url} alt={`${game.name} screenshot ${index}`}
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/300?text=No+Image';
-                      }}
+                      src={`https:${screenshot.url.replace('t_thumb', 't_720p')}`}
+                      alt={`${game.name} screenshot ${screenshot.id}`}
                       style={{
                         width: '100%',
                         borderRadius: '8px',

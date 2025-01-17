@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchGameDetails } from '../services/api';
-import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  CircularProgress,
-  Rating,
-  Grid2
-} from '@mui/material';
+import { Container,  Typography,  Box, Button, CircularProgress, Rating, Grid2 } from '@mui/material';
 import { formatDate } from '../utils/utils';
 import AppHeader from '../components/AppHeader';
+import { useMediaQuery, useTheme } from '@mui/material';
+
 
 
 const GameDetailsPage: React.FC = () => {
@@ -20,6 +14,10 @@ const GameDetailsPage: React.FC = () => {
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg')); 
 
   useEffect(() => {
     const loadGameDetails = async () => {
@@ -102,7 +100,7 @@ const GameDetailsPage: React.FC = () => {
         <Box
           sx={{
             display:'flex',
-            flexDirection:'row'   
+            flexDirection:{ xs:'column', md:'row', lg:'row'  }
           }}
         >
           {/*Portada*/}
@@ -180,10 +178,10 @@ const GameDetailsPage: React.FC = () => {
                 Capturas de pantalla
               </Typography>
               <Grid2 container spacing={2}>
-                {game.screenshots.map((screenshot: any) => (
+                {game.screenshots.map((screenshotId: number) => (
                   <Grid2
                     size={{ xs:6, md:4 }}
-                    key={screenshot.id}
+                    key={screenshotId}
                     sx={{
                       display: 'flex',
                       justifyContent: 'center',
@@ -191,8 +189,8 @@ const GameDetailsPage: React.FC = () => {
                     }}
                   >
                     <img
-                      src={`https:${screenshot.url.replace('t_thumb', 't_screenshot_big')}`}
-                      alt={`Screenshot ${screenshot.id}`}
+                      src={`https://images.igdb.com/igdb/image/upload/t_720p/${screenshotId}.webp`}
+                      alt={`Screenshot ${screenshotId}`}
                       onError={(e) => {
                         e.currentTarget.src = 'https://via.placeholder.com/300?text=No+Image';
                       }}
@@ -200,7 +198,7 @@ const GameDetailsPage: React.FC = () => {
                         width: '100%',
                         borderRadius: '8px',
                         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                        objectFit: 'cover', 
+                        objectFit: 'cover',
                       }}
                     />
                   </Grid2>

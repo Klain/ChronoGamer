@@ -121,6 +121,7 @@ const GameDetailsPage: React.FC = () => {
                       : 'https://via.placeholder.com/200x280?text=No+Image'
                   })`,
                   width:'100%',
+                  height:'20rem',
                   backgroundColor:'black',
                   backgroundRepeat: 'no-repeat',
                   backgroundSize: 'contain',
@@ -142,13 +143,13 @@ const GameDetailsPage: React.FC = () => {
               width:'70%'
             }}
           >
-            <Typography variant="h4">{game.name}</Typography>
+            <Typography variant="h4" sx={{ marginBottom: '1rem' }}>{game.name}</Typography>
         
-            <Rating name="half-rating" defaultValue={game.rating/20} precision={0.1} readOnly />
+            <Rating name="half-rating" defaultValue={game.rating/20} precision={0.1} sx={{ marginBottom: '1rem' }} readOnly />
         
             <Typography
               variant="subtitle1"
-              sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
+              sx={{ marginBottom: '1rem' , whiteSpace: 'normal' }}
             >
             {formatDate(game.release_dates[0].date)}
             </Typography>
@@ -156,7 +157,7 @@ const GameDetailsPage: React.FC = () => {
             {game.summary && (
               <Typography
                 variant="caption"
-                sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
+                sx={{ marginBottom: '1rem' , whiteSpace: 'normal' }}
               >
                 {game.summary}
               </Typography>

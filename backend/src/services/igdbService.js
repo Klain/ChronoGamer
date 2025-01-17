@@ -134,7 +134,7 @@ async function fetchGameDetails(id) {
   try {
     const response = await fetchWithRetry(
       'https://api.igdb.com/v4/games',
-      `fields name, genres.name, platforms.name, cover.url, release_dates.date, summary, rating , screenshots.url, videos.url ; where id = ${id};`,
+      `fields name, genres.name, platforms.name, cover.url, release_dates.date, summary, rating, screenshots.url; where id = ${id};`,
       {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
         Authorization: `Bearer ${token}`,

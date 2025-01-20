@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser , loginUser } from '../services/api';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
 
 const RegisterComponent: React.FC = () => {
@@ -34,13 +34,13 @@ const RegisterComponent: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '0 0 2rem 0'
+        paddingBottom: {xs:'1rem', md:'3rem'},
       }}
     >
       {message && <p>{message}</p>}
-      <Container maxWidth="sm" 
+      <Box
         sx={{ 
-          marginTop: '4rem' 
+          marginTop: {xs:'1rem', md:'3rem'},
         }}
       >
         <Typography variant="h4" gutterBottom>
@@ -73,7 +73,7 @@ const RegisterComponent: React.FC = () => {
             Registrarse
           </Button>
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };

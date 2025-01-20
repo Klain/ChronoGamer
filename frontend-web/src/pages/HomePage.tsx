@@ -145,7 +145,7 @@ const HomePage: React.FC = () => {
     <Box 
       sx={{ 
         flex:1,
-        padding: '2rem', 
+        padding:  {xs:'1rem', md:'2rem'},
         display: 'flex', 
         flexDirection: 'column',
       }}

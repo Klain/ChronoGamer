@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { Card, Typography, Box, Chip, Rating, CircularProgress } from '@mui/material';
 import { ApiGame } from '../models/ApiGame';
 import { fetchGameOfTheDay } from '../services/api';
@@ -8,7 +8,9 @@ const GameCardPro: React.FC = () => {
   const [gotd, setGotd] = useState<ApiGame | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  //const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg')); 
 
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const GameCardPro: React.FC = () => {
   return (
     <Box
       sx={{
-        padding: '2rem',
+        padding: {xs:'0', md:'2rem'},
       }}
     >
       <Card
@@ -62,11 +64,11 @@ const GameCardPro: React.FC = () => {
           borderRadius: 2,
           boxShadow: 3,
           filter:'drop-shadow(0rem 0rem 0.75rem rgba(256, 256, 256, 0.76));',
-          padding: '3rem',
+          padding: {xs:'1rem', md:'3rem'},
           textAlign: 'center',
           fontSize:'0.5rem',
           display:'flex',
-          flexDirection:'row',
+          flexDirection: {xs:'column', md:'row'},
           justifyContent:'space-between'
         }}
       >
@@ -75,7 +77,7 @@ const GameCardPro: React.FC = () => {
             display:'flex',
             flexDirection:'column',
             alignItems:'center',
-            width:'40%',    
+            width:{xs:'100%', md:'40%'},
           }}
         >
           {/* Imagen montada */}
@@ -99,12 +101,16 @@ const GameCardPro: React.FC = () => {
                 border: '0.5rem solid rgb(180, 178, 178)',
                 boxShadow: 3,
                 zIndex: 2,
-                marginBottom:'3rem'
+                marginBottom:{xs:'1rem', md:'3rem'},
                 }}
             />
           )}
           {/* Tarjeta */}
           <Box>
+            {isSmallScreen && (
+              <Typography variant="h6" noWrap> {gotd.name} </Typography>
+            )}
+
             {gotd.rating &&
               <Rating name="half-rating" defaultValue={gotd.rating/20} precision={0.1} readOnly />
             }
@@ -136,15 +142,18 @@ const GameCardPro: React.FC = () => {
         <Box
           sx={{
             display:'flex',
-            width:'50%',
-            flexDirection:'column-reverse',
+            width:{xs:'100%', md:'50%'},
+            flexDirection:{xs:'column', md:'column-reverse'}, 
             justifyContent:'flex-start'
           }}
         >
-          <Typography variant="h6" noWrap>
-            {gotd.name} 
-            {/*formatDate(gotd.release_dates[0].date)*/}
-          </Typography>
+            {!isSmallScreen && (
+              <Typography variant="h6" noWrap>
+                {gotd.name} 
+                {/*formatDate(gotd.release_dates[0].date)*/}
+              </Typography>
+            )}
+
           <Typography
             variant="subtitle1"
             sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}

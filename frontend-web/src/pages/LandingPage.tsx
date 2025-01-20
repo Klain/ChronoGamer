@@ -22,15 +22,16 @@ const LandingPage: React.FC = () => {
       sx ={{
         flex:1,
         display: 'flex',
-        flexDirection:'row',
+        flexDirection: {xs:'column', md:'row'},
         justifyContent:'space-between',
         textAlign: 'center', 
-        marginTop: '4rem' 
+        marginTop: {xs:'1rem', md:'3rem'},
       }}
     >
       <Box 
         sx={{
-          width:'40%',
+          width:{xs:'auto', md:'40%'},
+          padding: '1rem'
         }}
       >
         <Box>
@@ -72,7 +73,8 @@ const LandingPage: React.FC = () => {
       </Box>
       <Box 
         sx={{
-          width:'60%',
+          width:{xs:'auto', md:'60%'},
+          padding: '1rem'
         }}
       >
         <GameCardPro />

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
 const LoginComponent: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -30,12 +30,12 @@ const LoginComponent: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '0 0 2rem 0'
+        paddingBottom: {xs:'1rem', md:'3rem'},
       }}
     >
-      <Container maxWidth="sm" 
+      <Box
         sx={{ 
-          marginTop: '4rem' 
+          marginTop: {xs:'1rem', md:'3rem'},
         }}
       >
         <Typography variant="h4" gutterBottom>
@@ -73,7 +73,7 @@ const LoginComponent: React.FC = () => {
             Iniciar Sesión
           </Button>
         </Box>
-      </Container>
+      </Box>
     </Box>
     
   );

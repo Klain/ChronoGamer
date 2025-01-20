@@ -4,7 +4,7 @@ import { fetchGameDetails } from '../services/api';
 import { Container,  Typography,  Box, Button, CircularProgress, Rating, Grid2 } from '@mui/material';
 import { formatDate } from '../utils/utils';
 import AppHeader from '../components/AppHeader';
-import { useMediaQuery, useTheme } from '@mui/material';
+//import { useMediaQuery, useTheme } from '@mui/material';
 import VideoGrid from '../components/VideoGrid';
 
 
@@ -16,9 +16,9 @@ const GameDetailsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg')); 
+  //const theme = useTheme();
+  //const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  //const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg')); 
 
   useEffect(() => {
     const loadGameDetails = async () => {

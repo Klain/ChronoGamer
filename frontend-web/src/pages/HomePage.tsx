@@ -126,7 +126,7 @@ const HomePage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error || !(games??false)) {
     return (
       <Container>
         <AppHeader />
@@ -135,10 +135,6 @@ const HomePage: React.FC = () => {
         </Typography>
       </Container>
     );
-  }
-
-  if(!(games??false)){
-    navigate('/error');
   }
 
   return (

@@ -6,6 +6,7 @@ import { voteForGame } from '../services/api';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
+import ShareIcon from '@mui/icons-material/Share';
 
 
 interface GameCardProps {
@@ -42,17 +43,36 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
     } 
   }
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: game.name,
+          text: "¡Este juego acaba de cumplir años!",
+          url: "game/"+game.id,
+        });
+      } catch (error) {
+
+      }
+    } else {
+      alert(
+        "La funcionalidad de compartir no está soportada en este navegador. Prueba en un dispositivo móvil o actualiza tu navegador."
+      );
+    }
+  };
+
   return (
     <Box 
       sx={{ 
+        maxWidth:'90vw',
         position: 'relative', 
-        marginBottom: '4rem',
-        transition: 'transform 0.3s ease-in-out',
-      '&:hover': 
-        { 
-          zIndex: 3,
-          transform: 'translateY(20%) scale(1.3)',
-        },
+        marginBottom: {xs:'1rem', md:'2rem'},
+        transition: {xs:'', md:'transform 0.3s ease-in-out'},
+      '&:hover':  {xs:'', md:{ 
+        zIndex: 3,
+        transform: 'translateY(20%) scale(1.3)',
+      },},
+        
       }}
     >
       {/* Imagen montada */}
@@ -102,9 +122,40 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
           game.rating &&
           <Rating name="half-rating" defaultValue={game.rating/20} precision={0.1} readOnly />
         }
-        <Typography variant="h6" noWrap>
+        <Box>
+          <Badge
+            badgeContent={game.votes || 0}
+            color="secondary"
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <IconButton
+              sx={{
+                color : isVoted ? 'rgba(255, 0, 0, 1)' :( canVote ? 'rgba(128, 0, 128, 1)' : 'rgba(255, 105, 180, 1)')
+              }}
+              onClick={canVote ? handleVote : undefined}
+            >
+              {isVoted ? <FavoriteIcon /> :( canVote ? <FavoriteBorderIcon /> : <HeartBrokenIcon/>)}
+            </IconButton>
+          </Badge>
+          <IconButton
+            sx={{
+              color : 'rgba(128, 0, 128, 1)'
+            }}
+              onClick = {handleShare}
+          >
+              <ShareIcon  />
+          </IconButton>
+        </Box>
+
+        <Typography variant="h6">
+
           {game.name}
-        </Typography>
+
+        </Typography>           
+       
         <Typography
             variant="subtitle1"
             sx={{ marginTop: '0.5rem', whiteSpace: 'normal' }}
@@ -153,29 +204,13 @@ const GameCard: React.FC<GameCardProps> = ({ game, onViewDetails, isVoted , canV
           diplay:'flex',
           gap: '1rem'
           }}>
-          <Chip
-            label="Ver Detalles"
-            color="primary"
-            onClick={handleViewDetails}
-            clickable
-          />
-          <Badge
-            badgeContent={game.votes || 0}
-            color="secondary"
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <IconButton
-              sx={{
-                color : isVoted ? 'rgba(255, 0, 0, 1)' :( canVote ? 'rgba(128, 0, 128, 1)' : 'rgba(255, 105, 180, 1)')
-              }}
-              onClick={canVote ? handleVote : undefined}
-            >
-              {isVoted ? <FavoriteIcon /> :( canVote ? <FavoriteBorderIcon /> : <HeartBrokenIcon/>)}
-            </IconButton>
-          </Badge>
+            <Chip
+              label="Ver Detalles"
+              color="primary"
+              onClick={handleViewDetails}
+              clickable
+            />
+
         </Box>
       </Card>
     </Box>

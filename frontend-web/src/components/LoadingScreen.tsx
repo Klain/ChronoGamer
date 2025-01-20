@@ -44,14 +44,15 @@ const LoadingScreen: React.FC<{ message?: string; adImage?: string }> = ({ messa
         color: '#fff',
         textAlign: 'center',
         position: 'relative',
-        padding: '2rem'
+        padding: '2rem',
+
       }}
     >
       <Box
         sx={{
           display:'flex',
           flexDirection: 'row-reverse',
-          width: '80%'
+          width: '80%',
         }}
       >
         <Typography

@@ -14,6 +14,7 @@ const AppHeader: React.FC = () => {
   return (
     <Box
       sx={{
+        width:'100%',
         background: '#333',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
       }}

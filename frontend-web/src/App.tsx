@@ -24,14 +24,14 @@ const App: React.FC = () => {
       <Router>
         <Box
         sx={{
-          width:{ xs:'90vw', md:'80vw', lg:'80vw'  },
+          width:{ xs:'90vw', md:'80vw'},
           margin: '0 auto',
-          padding: { xs:'1rem 0 1rem 0', md:'3rem 0 2rem 0' },
+          padding: { xs:'1rem 0 1rem 0'},
           position: 'relative', 
           zIndex: 1,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent :{ xs:'flex-start', md:'center', lg:'center' },
+          alignContent :'flex-start',
         }}
       >
           {/*

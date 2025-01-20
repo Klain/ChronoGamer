@@ -122,7 +122,6 @@ const HomePage: React.FC = () => {
         <AppHeader />
         <LoadingScreen message="Loading" />
       </Box>
-      
     );
   }
 
@@ -144,6 +143,7 @@ const HomePage: React.FC = () => {
         padding:  {xs:'1rem', md:'2rem'},
         display: 'flex', 
         flexDirection: 'column',
+        alignContent:'center',
       }}
     >
       <AppHeader />

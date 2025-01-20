@@ -6,6 +6,7 @@ import { formatDate } from '../utils/utils';
 import AppHeader from '../components/AppHeader';
 //import { useMediaQuery, useTheme } from '@mui/material';
 import VideoGrid from '../components/VideoGrid';
+import LoadingScreen from '../components/LoadingScreen';
 
 
 
@@ -48,17 +49,16 @@ const GameDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
-      
-      <Box
-        sx={{
-          height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+      <Box 
+      sx={{ 
+        flex:1,
+        display: 'flex',        
+        flexDirection:'column',
+        justifyContent:'flex-end'
+      }}
       >
         <AppHeader />
-        <CircularProgress />
+        <LoadingScreen message="Loading" />
       </Box>
     );
   }
@@ -79,8 +79,10 @@ const GameDetailsPage: React.FC = () => {
 
   return (
     <Box
-      sx={{
-        position: 'relative',
+      sx={{ 
+        flex:1,
+        display: 'flex', 
+        flexDirection: 'column',
       }}
     >
       <AppHeader />
@@ -97,18 +99,24 @@ const GameDetailsPage: React.FC = () => {
           opacity: 0.5,
         }}
       />
-      <Box sx={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
+      
+      <Box 
+        sx={{ 
+          position: 'relative', 
+          zIndex: 1 
+        }}
+      >
         <Box
           sx={{
             display:'flex',
-            flexDirection:{ xs:'column', md:'row', lg:'row'  }
+            flexDirection:{ xs:'column', md:'row' }
           }}
         >
           {/*Portada*/}
           <Box
             sx={{
               padding:'2rem 1rem 2rem 1rem',
-              width:{ xs:'auto', md:'30%', lg:'30%'  }
+              width:{ xs:'auto', md:'30%' }
             }}
           >
             {game.cover && (
@@ -140,7 +148,7 @@ const GameDetailsPage: React.FC = () => {
           <Box
             sx={{
               padding:'2rem 1rem 2rem 1rem',
-              width:{ xs:'auto', md:'70%', lg:'70%'  }
+              width:{ xs:'auto', md:'70%' }
 
             }}
           >
@@ -214,20 +222,27 @@ const GameDetailsPage: React.FC = () => {
               </Grid2>
             </Box>
           )}
-        </Box>
-      </Box>   
-      {/* Botón de retorno */}
-      <Box sx={{ marginTop: '2rem', textAlign: 'center' }}>
-              <Button
-              onClick={() => navigate('/home')}
-              variant="contained"
-              sx={{ marginTop: '1rem' }}
+            {/* Botón de retorno */}
+            <Box 
+              sx={{
+                display: 'flex' ,
+                justifyContent:'flex-end',
+                textAlign: 'center' 
+              }}
             >
-              Volver a la Página Principal
-            </Button>
+              <Button
+                onClick={() => navigate('/home')}
+                variant="contained"
+                sx={{ marginTop: '1rem' }}
+                >
+                  Volver
+                </Button>
+            </Box>
           </Box>
+          
+        </Box>   
+      </Box>
     </Box>
-  </Box>
   );
 };
 
